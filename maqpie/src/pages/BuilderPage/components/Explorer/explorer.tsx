@@ -6,8 +6,8 @@ interface TreeNode {
   id: string;
   name: string;
   isExperiment: boolean;
-  parent?: TreeNode;
-  children: TreeNode[];
+  parent: TreeNode | null;
+  children?: TreeNode[] | null;
 }
 
 function getTreePath(node: TreeNode) {
@@ -25,7 +25,7 @@ export default function Explorer() {
     id: '.',
     name: '',
     isExperiment: false,
-    children: [],
+    parent: null,
   };
 
   useEffect(() => {
@@ -37,13 +37,17 @@ export default function Explorer() {
       !name.startsWith('_') && (name.endsWith('/') || name.endsWith('.py'))
     ));
 
-    return filteredData.map((name: string) => ({
-      id: `${getTreePath(parent)}/${name}`,
-      name: name,
-      isExperiment: name.endsWith('.py'),
-      children: [],
-      parent: parent,
-    }));
+    return filteredData.map((name: string) => {
+      const isExperiment = name.endsWith('.py');
+      const children = isExperiment ? null : undefined;
+      return {
+        id: `${getTreePath(parent)}/${name}`,
+        name: name,
+        isExperiment: isExperiment,
+        parent: parent,
+        children: children,
+      };
+    });
   };
 
   const fetchRoot = async () => {
