@@ -10,6 +10,13 @@ interface TreeNode {
   children?: TreeNode[] | null;
 }
 
+const rootNode: TreeNode = {
+  id: '.',
+  name: '',
+  isExperiment: false,
+  parent: null,
+};
+
 function getTreePath(node: TreeNode) {
   const path: string[] = [];
   while (node.parent) {
@@ -19,36 +26,30 @@ function getTreePath(node: TreeNode) {
   return path.join('/');
 }
 
+const makeSubTree = (data: string[], parent: TreeNode) => {
+  const filteredData = data.filter((name: string) => (
+    !name.startsWith('_') && (name.endsWith('/') || name.endsWith('.py'))
+  ));
+
+  return filteredData.map((name: string) => {
+    const isExperiment = name.endsWith('.py');
+    const children = isExperiment ? null : undefined;
+    return {
+      id: `${getTreePath(parent)}/${name}`,
+      name: name,
+      isExperiment: isExperiment,
+      parent: parent,
+      children: children,
+    };
+  });
+};
+
 export default function Explorer() {
   const [tree, setTree] = useState<TreeNode[]>([]);
-  const rootNode: TreeNode = {
-    id: '.',
-    name: '',
-    isExperiment: false,
-    parent: null,
-  };
 
   useEffect(() => {
     fetchRoot();
   }, []);
-
-  const makeSubTree = (data: string[], parent: TreeNode) => {
-    const filteredData = data.filter((name: string) => (
-      !name.startsWith('_') && (name.endsWith('/') || name.endsWith('.py'))
-    ));
-
-    return filteredData.map((name: string) => {
-      const isExperiment = name.endsWith('.py');
-      const children = isExperiment ? null : undefined;
-      return {
-        id: `${getTreePath(parent)}/${name}`,
-        name: name,
-        isExperiment: isExperiment,
-        parent: parent,
-        children: children,
-      };
-    });
-  };
 
   const fetchRoot = async () => {
     const url = new URL('/ls/', window.location.origin);
