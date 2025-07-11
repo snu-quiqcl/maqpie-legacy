@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 
+const patternDir = new RegExp(import.meta.env.VITE_PATTERN_DIR);
+const patternExp = new RegExp(import.meta.env.VITE_PATTERN_EXP);
+
 interface TreeNode {
   id: string;
   name: string;
@@ -19,11 +22,11 @@ const rootNode: TreeNode = {
 
 const makeSubTree = (data: string[], parent: TreeNode): TreeNode[] => {
   const filteredData = data.filter((name: string) => (
-    !name.startsWith('_') && (name.endsWith('/') || name.endsWith('.py'))
+    patternDir.test(name) || patternExp.test(name)
   ));
 
   return filteredData.map((name: string) => {
-    const isExperiment = name.endsWith('.py');
+    const isExperiment = patternExp.test(name);
     const children = isExperiment ? null : undefined;
     return {
       id: `${parent.id}${name}`,
