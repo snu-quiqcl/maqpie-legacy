@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 
@@ -125,12 +127,20 @@ export default function Explorer() {
     ));
 
   return (
-    <SimpleTreeView
-      expandedItems={expandedNodes}
-      onItemClick={(_, itemId) => handleNodeClick(itemId)}
-      onItemExpansionToggle={(_, itemId) => handleNodeExpansionToggle(itemId)}
+    <Stack>
+      <Button
+        variant="contained"
+        onClick={() => initTree()}
+      >
+        Refresh
+      </Button>
+      <SimpleTreeView
+        expandedItems={expandedNodes}
+        onItemClick={(_, itemId) => handleNodeClick(itemId)}
+        onItemExpansionToggle={(_, itemId) => handleNodeExpansionToggle(itemId)}
     >
-      {renderTree(tree)}
-    </SimpleTreeView>
+        {renderTree(tree)}
+      </SimpleTreeView>
+    </Stack>
   );
 }
