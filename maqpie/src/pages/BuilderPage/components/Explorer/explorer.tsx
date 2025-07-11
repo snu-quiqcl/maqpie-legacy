@@ -20,14 +20,15 @@ const rootNode: TreeNode = {
   parent: null,
 };
 
-const makeSubTree = (data: string[], parent: TreeNode): TreeNode[] => {
+const makeSubTree = (data: string[], parent: TreeNode) => {
   const filteredData = data.filter((name: string) => (
     patternDir.test(name) || patternExp.test(name)
   ));
 
-  return filteredData.map((name: string) => {
+  const children = filteredData.map((name: string) => {
     const isExperiment = patternExp.test(name);
     const children = isExperiment ? null : undefined;
+
     return {
       id: `${parent.id}${name}`,
       name: name,
@@ -36,30 +37,37 @@ const makeSubTree = (data: string[], parent: TreeNode): TreeNode[] => {
       children: children,
     };
   });
+
+  parent.children = children;
 };
 
 export default function Explorer() {
   const [tree, setTree] = useState<TreeNode[]>([]);
+  const [expandedNodes, setExpandedNodes] = useState<string[]>([]);
 
   useEffect(() => {
     initTree();
   }, []);
 
-  const findNode = (id: string, nodes: TreeNode[] = tree): TreeNode | null => {
+  const findNode = (id: string, nodes: TreeNode[] = tree): TreeNode => {
     for (const node of nodes) {
       if (node.id === id) {
         return node;
       }
 
       if (node.children) {
-        const child = findNode(id, node.children);
-        if (child) {
-          return child;
+        try {
+          const child = findNode(id, node.children);
+          if (child) {
+            return child;
+          }
+        } catch {
+          continue;
         }
       }
     }
     
-    return null;
+    throw new Error(`Node with id ${id} not found`);
   };
 
   const fetchChildren = async (parentId: string): Promise<string[]> => {
@@ -76,26 +84,32 @@ export default function Explorer() {
 
   const initTree = async () => {
     const data = await fetchChildren(rootNode.id);
+    makeSubTree(data, rootNode);
     
-    setTree(makeSubTree(data, rootNode));
+    setTree(rootNode.children ?? []);
+    setExpandedNodes([]);
   };
 
-  const loadChildren = async (parentId: string) => {
-    const data = await fetchChildren(parentId);
-
-    const parent = findNode(parentId);
-    if (parent) {
-      parent.children = makeSubTree(data, parent);
-    }
+  const loadChildren = async (parent: TreeNode) => {
+    const data = await fetchChildren(parent.id);
+    makeSubTree(data, parent);
 
     setTree([...tree]);
-  }
+    setExpandedNodes([...expandedNodes, parent.id]);
+  };
 
   const handleNodeClick = (id: string) => {
     const node = findNode(id);
-    console.log(node);
-    if (node && node.children == undefined) {
-      loadChildren(id);
+    if (node.children == undefined) {
+      loadChildren(node);
+    }
+  };
+
+  const handleNodeExpansionToggle = (id: string) => {
+    if (expandedNodes.includes(id)) {
+      setExpandedNodes(expandedNodes.filter((node) => node !== id));
+    } else {
+      setExpandedNodes([...expandedNodes, id]);
     }
   };
 
@@ -112,7 +126,9 @@ export default function Explorer() {
 
   return (
     <SimpleTreeView
+      expandedItems={expandedNodes}
       onItemClick={(_, itemId) => handleNodeClick(itemId)}
+      onItemExpansionToggle={(_, itemId) => handleNodeExpansionToggle(itemId)}
     >
       {renderTree(tree)}
     </SimpleTreeView>
