@@ -21,6 +21,8 @@ export default function BuilderPage() {
         </Button>
       </Stack>
       <Dialog
+        fullWidth
+        maxWidth="md"
         onClose={() => setOpenExplorer(false)}
         open={openExplorer}
       >
