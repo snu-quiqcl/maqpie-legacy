@@ -20,7 +20,7 @@ interface TreeNode {
   name: string;
   nodeType: TreeNodeType;
   parent: TreeNode | null;
-  children?: TreeNode[] | null;
+  children?: TreeNode[];
 }
 
 const rootNode: TreeNode = {
@@ -31,25 +31,35 @@ const rootNode: TreeNode = {
 };
 
 const makeSubTree = (data: string[], parent: TreeNode) => {
-  const filteredData = data.filter((name: string) => (
-    patternDir.test(name) || patternExp.test(name)
-  ));
+  if (parent.nodeType === TreeNodeType.DIR) {
+    const filteredData = data.filter((name: string) => (
+      patternDir.test(name) || patternExp.test(name)
+    ));
 
-  const children = filteredData.map((name: string) => {
-    const isDir = patternDir.test(name);
-    const nodeType = isDir ? TreeNodeType.DIR : TreeNodeType.FILE;
-    const children = isDir ? undefined : null;
+    const children = filteredData.map((name: string) => {
+      return {
+        id: `${parent.id}${name}`,
+        name: name,
+        nodeType: patternDir.test(name) ? TreeNodeType.DIR : TreeNodeType.FILE,
+        parent: parent,
+        children: undefined,
+      };
+    });
 
-    return {
-      id: `${parent.id}${name}`,
-      name: name,
-      nodeType: nodeType,
-      parent: parent,
-      children: children,
-    };
-  });
+    parent.children = children;
+  } else if (parent.nodeType === TreeNodeType.FILE) {
+    const children = data.map((name: string) => {
+      return {
+        id: `${parent.id}.${name}`,
+        name: name,
+        nodeType: TreeNodeType.CLS,
+        parent: parent,
+        children: undefined,
+      };
+    });
 
-  parent.children = children;
+    parent.children = children;
+  }
 };
 
 export default function Explorer() {
@@ -81,7 +91,7 @@ export default function Explorer() {
     throw new Error(`Node with id ${id} not found`);
   };
 
-  const fetchChildren = async (parentId: string): Promise<string[]> => {
+  const fetchDirAndFile = async (parentId: string): Promise<string[]> => {
     const url = new URL('/ls/', window.location.origin);
     url.searchParams.set('directory', parentId);
 
@@ -94,15 +104,36 @@ export default function Explorer() {
   };
 
   const initTree = async () => {
-    const data = await fetchChildren(rootNode.id);
+    const data = await fetchDirAndFile(rootNode.id);
     makeSubTree(data, rootNode);
     
     setTree(rootNode.children ?? []);
     setExpandedNodes([]);
   };
 
-  const loadChildren = async (parent: TreeNode) => {
-    const data = await fetchChildren(parent.id);
+  const loadDirAndFile = async (parent: TreeNode) => {
+    const data = await fetchDirAndFile(parent.id);
+    makeSubTree(data, parent);
+
+    setTree([...tree]);
+    setExpandedNodes([...expandedNodes, parent.id]);
+  };
+
+  const fetchCls = async (parentId: string): Promise<string[]> => {
+    const url = new URL('/experiment/info/', window.location.origin);
+    url.searchParams.set('file', parentId);
+
+    const res = await fetch(url.toString(), {
+      method: 'GET',
+    });
+    const data = await res.json();
+    const clses = Object.keys(data);
+
+    return clses;
+  };
+
+  const loadCls = async (parent: TreeNode) => {
+    const data = await fetchCls(parent.id);
     makeSubTree(data, parent);
 
     setTree([...tree]);
@@ -111,8 +142,10 @@ export default function Explorer() {
 
   const handleNodeClick = (id: string) => {
     const node = findNode(id);
-    if (node.children == undefined) {
-      loadChildren(node);
+    if (node.nodeType === TreeNodeType.DIR && node.children == undefined) {
+      loadDirAndFile(node);
+    } else if (node.nodeType === TreeNodeType.FILE && node.children == undefined) {
+      loadCls(node);
     }
   };
 

@@ -13,6 +13,10 @@ export default defineConfig(({ mode }) => {
           target: env.VITE_PROXY_API_BASE_URL,
           changeOrigin: true,
         },
+        '/experiment/info/': {
+          target: env.VITE_PROXY_API_BASE_URL,
+          changeOrigin: true,
+        },
       },
     },
   }
