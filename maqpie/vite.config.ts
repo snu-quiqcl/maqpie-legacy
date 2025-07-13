@@ -9,13 +9,10 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     server: {
       proxy: {
-        '/ls/': {
+        '/api/': {
           target: env.VITE_PROXY_API_BASE_URL,
           changeOrigin: true,
-        },
-        '/experiment/info/': {
-          target: env.VITE_PROXY_API_BASE_URL,
-          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ''),
         },
       },
     },

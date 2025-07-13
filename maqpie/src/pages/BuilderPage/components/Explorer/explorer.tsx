@@ -92,7 +92,7 @@ export default function Explorer() {
   };
 
   const fetchDirAndFile = async (parentId: string): Promise<string[]> => {
-    const url = new URL('/ls/', window.location.origin);
+    const url = new URL('/api/ls/', window.location.origin);
     url.searchParams.set('directory', parentId);
 
     const res = await fetch(url.toString(), {
@@ -120,7 +120,7 @@ export default function Explorer() {
   };
 
   const fetchCls = async (parentId: string): Promise<string[]> => {
-    const url = new URL('/experiment/info/', window.location.origin);
+    const url = new URL('/api/experiment/info/', window.location.origin);
     url.searchParams.set('file', parentId);
 
     const res = await fetch(url.toString(), {
