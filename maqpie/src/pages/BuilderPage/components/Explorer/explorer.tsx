@@ -7,10 +7,18 @@ import { TreeItem } from '@mui/x-tree-view/TreeItem';
 const patternDir = new RegExp(import.meta.env.VITE_PATTERN_DIR);
 const patternExp = new RegExp(import.meta.env.VITE_PATTERN_EXP);
 
+const TreeNodeType = {
+  DIR: 'DIRECTORY',
+  FILE: 'FILE',
+  CLS: 'CLASS',
+} as const;
+
+type TreeNodeType = typeof TreeNodeType[keyof typeof TreeNodeType];
+
 interface TreeNode {
   id: string;
   name: string;
-  isExperiment: boolean;
+  nodeType: TreeNodeType;
   parent: TreeNode | null;
   children?: TreeNode[] | null;
 }
@@ -18,7 +26,7 @@ interface TreeNode {
 const rootNode: TreeNode = {
   id: './',
   name: '',
-  isExperiment: false,
+  nodeType: TreeNodeType.DIR,
   parent: null,
 };
 
@@ -28,13 +36,14 @@ const makeSubTree = (data: string[], parent: TreeNode) => {
   ));
 
   const children = filteredData.map((name: string) => {
-    const isExperiment = patternExp.test(name);
-    const children = isExperiment ? null : undefined;
+    const isDir = patternDir.test(name);
+    const nodeType = isDir ? TreeNodeType.DIR : TreeNodeType.FILE;
+    const children = isDir ? undefined : null;
 
     return {
       id: `${parent.id}${name}`,
       name: name,
-      isExperiment: isExperiment,
+      nodeType: nodeType,
       parent: parent,
       children: children,
     };
