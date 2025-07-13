@@ -5,7 +5,8 @@ import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 
 const patternDir = new RegExp(import.meta.env.VITE_PATTERN_DIR);
-const patternExp = new RegExp(import.meta.env.VITE_PATTERN_EXP);
+const patternFile = new RegExp(import.meta.env.VITE_PATTERN_FILE);
+const patternCls = new RegExp(import.meta.env.VITE_PATTERN_CLS);
 
 const TreeNodeType = {
   DIR: 'DIRECTORY',
@@ -33,7 +34,7 @@ const rootNode: TreeNode = {
 const makeSubTree = (data: string[], parent: TreeNode) => {
   if (parent.nodeType === TreeNodeType.DIR) {
     const filteredData = data.filter((name: string) => (
-      patternDir.test(name) || patternExp.test(name)
+      patternDir.test(name) || patternFile.test(name)
     ));
 
     const children = filteredData.map((name: string) => {
@@ -48,7 +49,11 @@ const makeSubTree = (data: string[], parent: TreeNode) => {
 
     parent.children = children;
   } else if (parent.nodeType === TreeNodeType.FILE) {
-    const children = data.map((name: string) => {
+    const filteredData = data.filter((name: string) => (
+      patternCls.test(name)
+    ));
+
+    const children = filteredData.map((name: string) => {
       return {
         id: `${parent.id}.${name}`,
         name: name,
