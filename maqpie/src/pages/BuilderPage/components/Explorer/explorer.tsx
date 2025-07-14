@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import Button from "@mui/material/Button";
-import Stack from "@mui/material/Stack";
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 
@@ -178,7 +178,7 @@ export default function Explorer() {
   return (
     <Stack>
       <Button
-        variant="contained"
+        variant='contained'
         onClick={() => initTree()}
       >
         Refresh

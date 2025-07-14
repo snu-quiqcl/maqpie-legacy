@@ -1,20 +1,20 @@
-import { useState } from "react";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import Stack from "@mui/material/Stack";
+import { useState } from 'react';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import Stack from '@mui/material/Stack';
 
-import Explorer from "./components/Explorer/explorer";
+import Explorer from './components/Explorer/explorer';
 
 export default function BuilderPage() {
   const [openExplorer, setOpenExplorer] = useState(false);
 
   return (
     <Stack>
-      <Stack direction="row" justifyContent="flex-end" spacing={2}>
+      <Stack direction='row' justifyContent='flex-end' spacing={2}>
         <Button
-          variant="contained"
+          variant='contained'
           onClick={() => setOpenExplorer(true)}
         >
           Explorer
@@ -22,7 +22,7 @@ export default function BuilderPage() {
       </Stack>
       <Dialog
         fullWidth
-        maxWidth="md"
+        maxWidth='md'
         onClose={() => setOpenExplorer(false)}
         open={openExplorer}
       >
