@@ -151,6 +151,8 @@ export default function Explorer() {
       loadDirAndFile(node);
     } else if (node.nodeType === TreeNodeType.FILE && node.children == undefined) {
       loadCls(node);
+    } else if (node.nodeType === TreeNodeType.CLS) {
+      console.log('To be implemented');
     }
   };
 
