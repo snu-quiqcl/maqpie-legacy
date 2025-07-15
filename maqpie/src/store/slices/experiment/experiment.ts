@@ -8,6 +8,8 @@ import type { RootState } from '../..';
 export interface Arg<T> {
   name: string;
   default: T;
+  group: string | null;
+  tooltip: string | null;
 }
 
 export interface BooleanArg extends Arg<boolean> {}
@@ -113,22 +115,25 @@ export const experimentSlice = createSlice({
       const { data, path, cls } = action.payload;
       const clsData = data[cls];
       const args = Object.entries(clsData.arginfo).map(([name, value]) => {
-        const [info] = value as any[];
+        const [info, group, tooltip] = value as any[];
+        const baseArg: Arg<any> = {
+          name: name,
+          default: info.default,
+          group: group,
+          tooltip: tooltip,
+        };
         if (info.ty === 'BooleanValue') {
           return {
-            name: name,
-            default: info.default,
+            ...baseArg,
           } as BooleanArg;
         } else if (info.ty === 'EnumerationValue') {
           return {
-            name: name,
-            default: info.default,
+            ...baseArg,
             choices: info.choices,
           } as EnumerationArg;
         } else if (info.ty === 'NumberValue') {
           return {
-            name: name,
-            default: info.default,
+            ...baseArg,
             unit: info.unit,
             scale: info.scale,
             step: info.step,
@@ -139,8 +144,7 @@ export const experimentSlice = createSlice({
           } as NumberArg;
         } else if (info.ty === 'StringValue') {
           return {
-            name: name,
-            default: info.default,
+            ...baseArg,
           } as StringArg;
         } else if (info.ty === 'Scannable') {
           const [defInfo] = info.default as any[];
@@ -174,7 +178,7 @@ export const experimentSlice = createSlice({
             throw new Error(`Unknown scan type: ${defInfo.type}`);
           }
           return {
-            name: name,
+            ...baseArg,
             default: def,
             unit: info.unit,
             scale: info.scale,
