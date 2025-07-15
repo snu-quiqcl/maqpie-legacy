@@ -109,20 +109,21 @@ export const experimentSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(fetchExperiment.fulfilled, (state, action) => {
       const { data, path, cls } = action.payload;
-      const args = Object.entries(data.arginfo).map(([name, value]) => {
+      const clsData = data[cls];
+      const args = Object.entries(clsData.arginfo).map(([name, value]) => {
         const [info] = value as any[];
-        if (info.type === 'BooleanValue') {
+        if (info.ty === 'BooleanValue') {
           return {
             name: name,
             default: info.default,
           } as BooleanArg;
-        } else if (info.type === 'EnumerationValue') {
+        } else if (info.ty === 'EnumerationValue') {
           return {
             name: name,
             default: info.default,
             choices: info.choices,
           } as EnumerationArg;
-        } else if (info.type === 'NumberValue') {
+        } else if (info.ty === 'NumberValue') {
           return {
             name: name,
             default: info.default,
@@ -134,20 +135,20 @@ export const experimentSlice = createSlice({
             ndecimals: info.ndecimals,
             type: info.type,
           } as NumberArg;
-        } else if (info.type === 'StringValue') {
+        } else if (info.ty === 'StringValue') {
           return {
             name: name,
             default: info.default,
           } as StringArg;
-        } else if (info.type === 'Scannable') {
+        } else if (info.ty === 'Scannable') {
           const [defInfo] = info.default as any[];
           let def: Scan;
-          if (defInfo.type === 'NoScan') {
+          if (defInfo.ty === 'NoScan') {
             def = {
               value: defInfo.value,
               repetitions: defInfo.repetitions,
             } as NoScan;
-          } else if (defInfo.type === 'RangeScan') {
+          } else if (defInfo.ty === 'RangeScan') {
             def = {
               start: defInfo.start,
               stop: defInfo.stop,
@@ -155,7 +156,7 @@ export const experimentSlice = createSlice({
               randomize: defInfo.randomize,
               seed: defInfo.seed,
             } as RangeScan;
-          } else if (defInfo.type === 'CenterScan') {
+          } else if (defInfo.ty === 'CenterScan') {
             def = {
               center: defInfo.center,
               span: defInfo.span,
@@ -163,7 +164,7 @@ export const experimentSlice = createSlice({
               randomize: defInfo.randomize,
               seed: defInfo.seed,
             } as CenterScan;
-          } else if (defInfo.type === 'ExplicitScan') {
+          } else if (defInfo.ty === 'ExplicitScan') {
             def = {
               sequence: defInfo.sequence,
             } as ExplicitScan;
@@ -184,7 +185,7 @@ export const experimentSlice = createSlice({
         throw new Error(`Unknown argument type: ${info.type}`);
       });
       const experiment = {
-        name: data.name,
+        name: clsData.name,
         tag: '',
         path: path,
         cls: cls,
