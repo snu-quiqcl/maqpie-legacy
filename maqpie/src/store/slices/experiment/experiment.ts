@@ -69,7 +69,7 @@ export interface SchedOpts {
   timed: DateTime | null;
 }
 
-export interface ExperimentInfo {
+export interface Experiment {
   name: string;
   tag: string;
   path: string;
@@ -79,7 +79,7 @@ export interface ExperimentInfo {
 }
 
 export interface ExperimentState {
-  experiments: ExperimentInfo[];
+  experiments: Experiment[];
 }
 
 const initialState: ExperimentState = {
@@ -88,7 +88,7 @@ const initialState: ExperimentState = {
 
 export const fetchExperiment = createAsyncThunk(
   'experiment/fetchExperiment',
-  async (payload: Pick<ExperimentInfo, 'path' | 'cls'>) => {
+  async (payload: Pick<Experiment, 'path' | 'cls'>) => {
     const response = await axios.get('/api/experiment/info/', {
       params: {
         file: payload.path,
@@ -195,7 +195,7 @@ export const experimentSlice = createSlice({
           priority: 0,
           timed: null,
         } as SchedOpts,
-      } as ExperimentInfo;
+      } as Experiment;
       state.experiments.push(experiment);
     });
   },
