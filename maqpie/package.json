@@ -17,6 +17,7 @@
     "@mui/x-tree-view": "^8.7.0",
     "@reduxjs/toolkit": "^2.8.2",
     "@types/luxon": "^3.6.2",
+    "axios": "^1.10.0",
     "luxon": "^3.7.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

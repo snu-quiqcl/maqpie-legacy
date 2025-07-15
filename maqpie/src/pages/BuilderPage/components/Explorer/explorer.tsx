@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
+
+import type { AppDispatch } from '../../../../store';
+import { fetchExperiment } from '../../../../store/slices/experiment/experiment';
 
 const patternDir = new RegExp(import.meta.env.VITE_PATTERN_DIR);
 const patternFile = new RegExp(import.meta.env.VITE_PATTERN_FILE);
@@ -68,6 +72,7 @@ const makeSubTree = (data: string[], parent: TreeNode) => {
 };
 
 export default function Explorer() {
+  const dispatch = useDispatch<AppDispatch>();
   const [tree, setTree] = useState<TreeNode[]>([]);
   const [expandedNodes, setExpandedNodes] = useState<string[]>([]);
 
@@ -152,7 +157,7 @@ export default function Explorer() {
     } else if (node.nodeType === TreeNodeType.FILE && node.children == undefined) {
       loadCls(node);
     } else if (node.nodeType === TreeNodeType.CLS) {
-      console.log('To be implemented');
+      dispatch(fetchExperiment({ path: node.parent!.id, cls: node.name }));
     }
   };
 
