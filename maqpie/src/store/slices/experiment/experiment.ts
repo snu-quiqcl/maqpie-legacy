@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { DateTime } from 'luxon';
+import { v4 as uuidv4 } from 'uuid';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import type { RootState } from '../..';
@@ -70,6 +71,7 @@ export interface SchedOpts {
 }
 
 export interface Experiment {
+  id: string;
   name: string;
   tag: string;
   path: string;
@@ -185,6 +187,7 @@ export const experimentSlice = createSlice({
         throw new Error(`Unknown argument type: ${info.type}`);
       });
       const experiment = {
+        id: uuidv4(),
         name: clsData.name,
         tag: '',
         path: path,
