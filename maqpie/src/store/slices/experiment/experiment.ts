@@ -19,8 +19,8 @@ export interface NumberArg extends Arg<number> {
   unit: string;
   scale: number;
   step: number;
-  min: number;
-  max: number;
+  min: number | null;
+  max: number | null;
   ndecimals: number;
   type: string;
 }
@@ -58,8 +58,8 @@ export interface ScanArg extends Arg<Scan> {
   unit: string;
   scale: number;
   global_step: number;
-  global_min: number;
-  global_max: number;
+  global_min: number | null;
+  global_max: number | null;
   ndecimals: number;
 }
 
