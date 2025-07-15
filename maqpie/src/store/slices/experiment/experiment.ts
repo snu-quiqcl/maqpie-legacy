@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { DateTime } from 'luxon';
 import { v4 as uuidv4 } from 'uuid';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import type { RootState } from '../..';
 
@@ -129,7 +129,15 @@ export const fetchExperiment = createAsyncThunk(
 export const experimentSlice = createSlice({
   name: 'experiment',
   initialState,
-  reducers: {},
+  reducers: {
+    updateExperiment: (state, action: PayloadAction<{ id: string; experiment: Experiment }>) => {
+      const { id, experiment } = action.payload;
+      const index = state.experiments.findIndex((e) => e.id === id);
+      if (index !== -1) {
+        state.experiments[index] = experiment;
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(fetchExperiment.fulfilled, (state, action) => {
       const { data, path, cls } = action.payload;
