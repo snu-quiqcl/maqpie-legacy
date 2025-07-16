@@ -73,6 +73,7 @@ export function EnumerationArgInput({ experimentId, arg: arg_ }: ArgInputProps) 
           <InputLabel id={`${arg.id}-select-label`}>{arg.name}</InputLabel>
           <Select
             labelId={`${arg.id}-select-label`}
+            label={arg.name}
             value={arg.value}
             onChange={handleChange}
           >
