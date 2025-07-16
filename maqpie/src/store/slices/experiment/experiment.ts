@@ -145,7 +145,11 @@ export const experimentSlice = createSlice({
             choices: info.choices,
           } as EnumerationArg;
         } else if (info.ty === 'NumberValue') {
-          const def = info.default !== undefined ? info.default : info.min;
+          const def = info.default !== undefined ? info.default : (
+            info.min !== null ? info.min : (
+              info.max !== null ? info.max : 0
+            )
+          );
           return {
             ...baseArg,
             kind: 'NumberArg',
