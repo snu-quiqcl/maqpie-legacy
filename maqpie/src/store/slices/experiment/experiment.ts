@@ -130,7 +130,10 @@ export const experimentSlice = createSlice({
   name: 'experiment',
   initialState,
   reducers: {
-    updateExperiment: (state, action: PayloadAction<{ experimentId: string; experiment: Experiment }>) => {
+    updateExperiment: (state, action: PayloadAction<{
+      experimentId: string;
+      experiment: Experiment;
+    }>) => {
       const { experimentId, experiment } = action.payload;
       const experimentIndex = state.experiments.findIndex((e) => e.id === experimentId);
       if (experimentIndex === -1) {
