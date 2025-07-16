@@ -12,7 +12,7 @@ import Typography from '@mui/material/Typography';
 
 import type { AppDispatch } from '../../../../store';
 import { experimentActions, type Experiment } from '../../../../store/slices/experiment/experiment';
-import { BooleanArgInput, EnumerationArgInput, StringArgInput } from './ArgInput';
+import { BooleanArgInput, EnumerationArgInput, NumberArgInput, StringArgInput } from './ArgInput';
 
 type ExperimentPanelProps = {
   experiment: Experiment;
@@ -68,6 +68,14 @@ export default function ExperimentPanel({ experiment }: ExperimentPanelProps) {
               } else if (arg.kind === 'EnumerationArg') {
                 return (
                   <EnumerationArgInput
+                    key={arg.id}
+                    experimentId={experiment.id}
+                    arg={arg}
+                  />
+                );
+              } else if (arg.kind === 'NumberArg') {
+                return (
+                  <NumberArgInput
                     key={arg.id}
                     experimentId={experiment.id}
                     arg={arg}

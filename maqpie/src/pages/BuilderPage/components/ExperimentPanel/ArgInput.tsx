@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import InputAdornment from '@mui/material/InputAdornment';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { type SelectChangeEvent } from '@mui/material/Select';
@@ -15,6 +16,7 @@ import {
   type Arg,
   type BooleanArg,
   type EnumerationArg,
+  type NumberArg,
   type StringArg,
 } from '../../../../store/slices/experiment/experiment';
 
@@ -81,6 +83,51 @@ export function EnumerationArgInput({ experimentId, arg: arg_ }: ArgInputProps) 
             ))}
           </Select>
         </FormControl>
+      </Tooltip>
+    </Box>
+  );
+}
+
+export function NumberArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
+  const arg = arg_ as NumberArg;
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let value = parseFloat(event.target.value.replace(/[^0-9.-]/g, '')) * arg.scale;
+    if (isNaN(value)) {
+      value = arg.default;
+    } else if (arg.min !== null && value < arg.min) {
+      value = arg.min;
+    } else if (arg.max !== null && value > arg.max) {
+      value = arg.max;
+    }
+    dispatch(experimentActions.updateArg({
+      experimentId,
+      argId: arg.id,
+      arg: { ...arg, value },
+    }));
+  };
+
+  return (
+    <Box>
+      <Tooltip
+        title={[
+          arg.tooltip,
+          `(Default: ${[arg.default / arg.scale, arg.unit].filter(Boolean).join(' ')})`,
+        ].filter(Boolean).join('\n')}
+      >
+        <TextField
+          label={arg.name}
+          variant='outlined'
+          fullWidth
+          value={arg.value / arg.scale}
+          onChange={handleChange}
+          slotProps={{
+            input: {
+              endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
+            },
+          }}
+        />
       </Tooltip>
     </Box>
   );
