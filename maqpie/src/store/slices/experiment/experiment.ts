@@ -5,8 +5,11 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import type { RootState } from '../..';
 
+export type ArgKind = 'BooleanArg' | 'EnumerationArg' | 'NumberArg' | 'StringArg' | 'ScanArg';
+
 export interface Arg<T> {
   id: string;
+  kind: ArgKind;
   name: string;
   value: T;
   default: T;
@@ -118,7 +121,7 @@ export const experimentSlice = createSlice({
       const clsData = data[cls];
       const args = Object.entries(clsData.arginfo).map(([name, value]) => {
         const [info, group, tooltip] = value as any[];
-        const baseArg: Arg<any> = {
+        const baseArg = {
           id: uuidv4(),
           name: name,
           value: info.default,
@@ -129,15 +132,18 @@ export const experimentSlice = createSlice({
         if (info.ty === 'BooleanValue') {
           return {
             ...baseArg,
+            kind: 'BooleanArg',
           } as BooleanArg;
         } else if (info.ty === 'EnumerationValue') {
           return {
             ...baseArg,
+            kind: 'EnumerationArg',
             choices: info.choices,
           } as EnumerationArg;
         } else if (info.ty === 'NumberValue') {
           return {
             ...baseArg,
+            kind: 'NumberArg',
             unit: info.unit,
             scale: info.scale,
             step: info.step,
@@ -149,6 +155,7 @@ export const experimentSlice = createSlice({
         } else if (info.ty === 'StringValue') {
           return {
             ...baseArg,
+            kind: 'StringArg',
           } as StringArg;
         } else if (info.ty === 'Scannable') {
           const [defInfo] = info.default as any[];
@@ -183,6 +190,7 @@ export const experimentSlice = createSlice({
           }
           return {
             ...baseArg,
+            kind: 'ScanArg',
             value: def,
             default: def,
             unit: info.unit,
