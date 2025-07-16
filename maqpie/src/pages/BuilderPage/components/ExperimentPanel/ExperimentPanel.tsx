@@ -11,7 +11,8 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { AppDispatch } from '../../../../store';
-import { experimentActions, type Experiment } from '../../../../store/slices/experiment/experiment';
+import { experimentActions, type BooleanArg, type Experiment } from '../../../../store/slices/experiment/experiment';
+import { BooleanArgInput } from './ArgInput';
 
 type ExperimentPanelProps = {
   experiment: Experiment;
@@ -26,7 +27,7 @@ export default function ExperimentPanel({ experiment }: ExperimentPanelProps) {
     id: string
   ) => {
     dispatch(experimentActions.updateExperiment({
-      id,
+      experimentId: id,
       experiment: { ...experiment, tag: event.target.value },
     }));
   };
@@ -55,7 +56,18 @@ export default function ExperimentPanel({ experiment }: ExperimentPanelProps) {
             </TabList>
           </Box>
           <TabPanel value='args'>
-            Arguments
+            {experiment.args.map((arg) => {
+              if (arg.kind === 'BooleanArg') {
+                return (
+                  <BooleanArgInput
+                    key={arg.id}
+                    experimentId={experiment.id}
+                    arg={arg}
+                  />
+                );
+              }
+              throw new Error(`Unknown argument kind: ${arg.kind}`);
+            })}
           </TabPanel>
           <TabPanel value='schedOpts'>
             Scheduling Options

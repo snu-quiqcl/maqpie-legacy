@@ -130,12 +130,29 @@ export const experimentSlice = createSlice({
   name: 'experiment',
   initialState,
   reducers: {
-    updateExperiment: (state, action: PayloadAction<{ id: string; experiment: Experiment }>) => {
-      const { id, experiment } = action.payload;
-      const index = state.experiments.findIndex((e) => e.id === id);
-      if (index !== -1) {
-        state.experiments[index] = experiment;
+    updateExperiment: (state, action: PayloadAction<{ experimentId: string; experiment: Experiment }>) => {
+      const { experimentId, experiment } = action.payload;
+      const experimentIndex = state.experiments.findIndex((e) => e.id === experimentId);
+      if (experimentIndex === -1) {
+        throw new Error(`Experiment ${experimentId} not found`);
       }
+      state.experiments[experimentIndex] = experiment;
+    },
+    updateArg: (state, action: PayloadAction<{
+      experimentId: string;
+      argId: string;
+      arg: Arg<any>;
+    }>) => {
+      const { experimentId, argId, arg } = action.payload;
+      const experimentIndex = state.experiments.findIndex((e) => e.id === experimentId);
+      if (experimentIndex === -1) {
+        throw new Error(`Experiment ${experimentId} not found`);
+      }
+      const argIndex = state.experiments[experimentIndex].args.findIndex((a) => a.id === argId);
+      if (argIndex === -1) {
+        throw new Error(`Argument ${argId} not found`);
+      }
+      state.experiments[experimentIndex].args[argIndex] = arg;
     },
   },
   extraReducers: (builder) => {

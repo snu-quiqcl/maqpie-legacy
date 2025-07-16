@@ -27,7 +27,10 @@ export default function BuilderPage() {
       </Stack>
       <Grid container spacing={2}>
         {experimentState.experiments.map((experiment) => (
-          <Grid size={4}>
+          <Grid
+            key={experiment.id}
+            size={4}
+          >
             <ExperimentPanel experiment={experiment} />
           </Grid>
         ))}
