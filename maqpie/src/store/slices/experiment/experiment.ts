@@ -6,7 +6,9 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import type { RootState } from '../..';
 
 export interface Arg<T> {
+  id: string;
   name: string;
+  value: T;
   default: T;
   group: string | null;
   tooltip: string | null;
@@ -117,7 +119,9 @@ export const experimentSlice = createSlice({
       const args = Object.entries(clsData.arginfo).map(([name, value]) => {
         const [info, group, tooltip] = value as any[];
         const baseArg: Arg<any> = {
+          id: uuidv4(),
           name: name,
+          value: info.default,
           default: info.default,
           group: group,
           tooltip: tooltip,
@@ -179,6 +183,7 @@ export const experimentSlice = createSlice({
           }
           return {
             ...baseArg,
+            value: def,
             default: def,
             unit: info.unit,
             scale: info.scale,
