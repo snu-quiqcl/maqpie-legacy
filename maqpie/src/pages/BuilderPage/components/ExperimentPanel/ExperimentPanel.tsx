@@ -11,8 +11,8 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { AppDispatch } from '../../../../store';
-import { experimentActions, type BooleanArg, type Experiment } from '../../../../store/slices/experiment/experiment';
-import { BooleanArgInput } from './ArgInput';
+import { experimentActions, type Experiment } from '../../../../store/slices/experiment/experiment';
+import { BooleanArgInput, EnumerationArgInput, StringArgInput } from './ArgInput';
 
 type ExperimentPanelProps = {
   experiment: Experiment;
@@ -60,6 +60,22 @@ export default function ExperimentPanel({ experiment }: ExperimentPanelProps) {
               if (arg.kind === 'BooleanArg') {
                 return (
                   <BooleanArgInput
+                    key={arg.id}
+                    experimentId={experiment.id}
+                    arg={arg}
+                  />
+                );
+              } else if (arg.kind === 'EnumerationArg') {
+                return (
+                  <EnumerationArgInput
+                    key={arg.id}
+                    experimentId={experiment.id}
+                    arg={arg}
+                  />
+                );
+              } else if (arg.kind === 'StringArg') {
+                return (
+                  <StringArgInput
                     key={arg.id}
                     experimentId={experiment.id}
                     arg={arg}

@@ -6,6 +6,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { type SelectChangeEvent } from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 
 import type { AppDispatch } from '../../../../store';
@@ -13,7 +14,8 @@ import {
   experimentActions,
   type Arg,
   type BooleanArg,
-  type EnumerationArg
+  type EnumerationArg,
+  type StringArg,
 } from '../../../../store/slices/experiment/experiment';
 
 type ArgInputProps = {
@@ -79,6 +81,33 @@ export function EnumerationArgInput({ experimentId, arg: arg_ }: ArgInputProps) 
             ))}
           </Select>
         </FormControl>
+      </Tooltip>
+    </Box>
+  );
+}
+
+export function StringArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
+  const arg = arg_ as StringArg;
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(experimentActions.updateArg({
+      experimentId,
+      argId: arg.id,
+      arg: { ...arg, value: event.target.value },
+    }));
+  };
+
+  return (
+    <Box>
+      <Tooltip title={[arg.tooltip, `(Default: ${arg.default})`].filter(Boolean).join('\n')}>
+        <TextField
+          label={arg.name}
+          variant='outlined'
+          fullWidth
+          value={arg.value}
+          onChange={handleChange}
+        />
       </Tooltip>
     </Box>
   );
