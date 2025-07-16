@@ -113,8 +113,8 @@ export function NumberArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
       <Tooltip
         title={[
           arg.tooltip,
-          `(Default: ${[arg.default / arg.scale, arg.unit].filter(Boolean).join(' ')})`,
-        ].filter(Boolean).join('\n')}
+          `(Default: ${arg.default / arg.scale}${arg.unit ? ' ' + arg.unit : ''})`,
+        ].filter(Boolean).join(' ')}
       >
         <TextField
           label={arg.name}
