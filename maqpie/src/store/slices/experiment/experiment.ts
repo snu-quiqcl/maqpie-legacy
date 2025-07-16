@@ -124,26 +124,33 @@ export const experimentSlice = createSlice({
         const baseArg = {
           id: uuidv4(),
           name: name,
-          value: info.default,
-          default: info.default,
           group: group,
           tooltip: tooltip,
         };
         if (info.ty === 'BooleanValue') {
+          const def = info.default !== undefined ? info.default : false;
           return {
             ...baseArg,
             kind: 'BooleanArg',
+            value: def,
+            default: def,
           } as BooleanArg;
         } else if (info.ty === 'EnumerationValue') {
+          const def = info.default !== undefined ? info.default : info.choices[0];
           return {
             ...baseArg,
             kind: 'EnumerationArg',
+            value: def,
+            default: def,
             choices: info.choices,
           } as EnumerationArg;
         } else if (info.ty === 'NumberValue') {
+          const def = info.default !== undefined ? info.default : info.min;
           return {
             ...baseArg,
             kind: 'NumberArg',
+            value: def,
+            default: def,
             unit: info.unit,
             scale: info.scale,
             step: info.step,
@@ -153,9 +160,12 @@ export const experimentSlice = createSlice({
             type: info.type,
           } as NumberArg;
         } else if (info.ty === 'StringValue') {
+          const def = info.default !== undefined ? info.default : '';
           return {
             ...baseArg,
             kind: 'StringArg',
+            value: def,
+            default: def,
           } as StringArg;
         } else if (info.ty === 'Scannable') {
           const [defInfo] = info.default as any[];
