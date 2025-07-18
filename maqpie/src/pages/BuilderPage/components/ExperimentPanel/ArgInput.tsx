@@ -561,18 +561,14 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
 
   return (
     <Stack spacing={2}>
-      {arg.tooltip ? (
-        <Tooltip
-          title={`
-            ${arg.tooltip ? arg.tooltip + '\n' : ''}
-            (Default selected: ${arg.default.selected})
-          `}
-        >
-          <Typography variant='subtitle1'>{arg.name}</Typography>
-        </Tooltip>
-      ) : (
+      <Tooltip
+        title={`
+          ${arg.tooltip ? arg.tooltip + '\n' : ''}
+          (Default selected: ${arg.default.selected})
+        `}
+      >
         <Typography variant='subtitle1'>{arg.name}</Typography>
-      )}
+      </Tooltip>
       <Box>
         <TabContext value={arg.value.selected}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
