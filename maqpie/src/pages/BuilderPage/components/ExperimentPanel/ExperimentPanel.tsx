@@ -68,7 +68,7 @@ export default function ExperimentPanel({ experiment }: ExperimentPanelProps) {
             <TabPanel value='args'>
               <Stack spacing={2}>
                 {experiment.args.map((arg) => {
-                  if (arg.kind === 'BooleanArg') {
+                  if (arg.ty === 'BooleanValue') {
                     return (
                       <BooleanArgInput
                         key={arg.id}
@@ -76,7 +76,7 @@ export default function ExperimentPanel({ experiment }: ExperimentPanelProps) {
                         arg={arg}
                       />
                     );
-                  } else if (arg.kind === 'EnumerationArg') {
+                  } else if (arg.ty === 'EnumerationValue') {
                     return (
                       <EnumerationArgInput
                         key={arg.id}
@@ -84,7 +84,7 @@ export default function ExperimentPanel({ experiment }: ExperimentPanelProps) {
                         arg={arg}
                       />
                     );
-                  } else if (arg.kind === 'NumberArg') {
+                  } else if (arg.ty === 'NumberValue') {
                     return (
                       <NumberArgInput
                         key={arg.id}
@@ -92,7 +92,7 @@ export default function ExperimentPanel({ experiment }: ExperimentPanelProps) {
                         arg={arg}
                       />
                     );
-                  } else if (arg.kind === 'StringArg') {
+                  } else if (arg.ty === 'StringValue') {
                     return (
                       <StringArgInput
                         key={arg.id}
@@ -100,7 +100,7 @@ export default function ExperimentPanel({ experiment }: ExperimentPanelProps) {
                         arg={arg}
                       />
                     );
-                  } else if (arg.kind === 'ScanArg') {
+                  } else if (arg.ty === 'Scannable') {
                     return (
                       <ScanArgInput
                         key={arg.id}
@@ -109,7 +109,7 @@ export default function ExperimentPanel({ experiment }: ExperimentPanelProps) {
                       />
                     );
                   }
-                  throw new Error(`Unknown argument kind: ${arg.kind}`);
+                  throw new Error(`Unknown argument ty: ${arg.ty}`);
                 })}
               </Stack>
             </TabPanel>
