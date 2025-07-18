@@ -350,7 +350,7 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
             }}
           />
           <TextField
-            label='repetitions'
+            label='stop'
             variant='outlined'
             fullWidth
             value={rawStop}
@@ -473,7 +473,7 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
             }}
           />
           <TextField
-            label='repetitions'
+            label='span'
             variant='outlined'
             fullWidth
             value={rawSpan}
@@ -523,6 +523,42 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
     );
   };
 
+  const renderExplicitScan = () => {
+    const explicitScan = arg.value.ExplicitScan;
+    const [rawSequence, setRawSequence] = useState<string>(
+      explicitScan.sequence.map((value) => (value / arg.scale).toString()).join(', ')
+    );
+
+    const handleSequenceBlur = () => {
+      const sequence = rawSequence.split(', ').map(
+        (value) => validateAndScaleNumberInScan(value, NaN)
+      ).filter((value) => !isNaN(value));
+      setRawSequence(sequence.map((value) => (value / arg.scale).toString()).join(', '));
+
+      dispatch(experimentActions.updateArg({
+        experimentId,
+        argId: arg.id,
+        arg: { ...arg, value: { ...arg.value, ExplicitScan: { ...explicitScan, sequence } } },
+      }));
+    };
+
+    return (
+      <TextField
+        label='sequence'
+        variant='outlined'
+        fullWidth
+        value={rawSequence}
+        onChange={(event) => setRawSequence(event.target.value)}
+        onBlur={() => handleSequenceBlur()}
+        slotProps={{
+          input: {
+            endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
+          },
+        }}
+      />
+    );
+  };
+
   return (
     <Stack spacing={2}>
       {arg.tooltip ? (
@@ -560,7 +596,7 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
             {renderCenterScan()}
           </TabPanel>
           <TabPanel value='ExplicitScan'>
-            4
+            {renderExplicitScan()}
           </TabPanel>
         </TabContext>
       </Box>
