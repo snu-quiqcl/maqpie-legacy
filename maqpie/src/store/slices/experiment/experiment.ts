@@ -117,6 +117,7 @@ export const fetchExperiment = createAsyncThunk(
         file: payload.path,
       },
     });
+
     return {
       data: response.data,
       path: payload.path,
@@ -133,6 +134,7 @@ export const experimentSlice = createSlice({
     builder.addCase(fetchExperiment.fulfilled, (state, action) => {
       const { data, path, cls } = action.payload;
       const clsData = data[cls];
+
       const args = Object.entries(clsData.arginfo).map(([name, value]) => {
         const [info, group, tooltip] = value as any[];
         const baseArg = {
@@ -142,8 +144,10 @@ export const experimentSlice = createSlice({
           group: group,
           tooltip: tooltip,
         } as Arg<any>;
+
         if (info.ty === 'BooleanValue') {
           const def = info.default !== undefined ? info.default : false;
+
           return {
             ...baseArg,
             value: def,
@@ -151,6 +155,7 @@ export const experimentSlice = createSlice({
           } as BooleanArg;
         } else if (info.ty === 'EnumerationValue') {
           const def = info.default !== undefined ? info.default : info.choices[0];
+
           return {
             ...baseArg,
             value: def,
@@ -168,6 +173,7 @@ export const experimentSlice = createSlice({
             'int' :
             'float'
           );
+
           return {
             ...baseArg,
             value: def,
@@ -182,6 +188,7 @@ export const experimentSlice = createSlice({
           } as NumberArg;
         } else if (info.ty === 'StringValue') {
           const def = info.default !== undefined ? info.default : '';
+          
           return {
             ...baseArg,
             value: def,
@@ -191,6 +198,7 @@ export const experimentSlice = createSlice({
           const def = {
             selected: info.default ? info.default[0].ty : 'NoScan',
           } as ScanInfo;
+
           const noScan = info.default.find((d: any) => d.ty === 'NoScan');
           if (noScan) {
             def.NoScan = {
@@ -207,6 +215,7 @@ export const experimentSlice = createSlice({
               repetitions: 0,
             } as NoScan;
           }
+
           const rangeScan = info.default.find((d: any) => d.ty === 'RangeScan');
           if (rangeScan) {
             def.RangeScan = {
@@ -231,6 +240,7 @@ export const experimentSlice = createSlice({
               seed: null,
             } as RangeScan;
           }
+
           const centerScan = info.default.find((d: any) => d.ty === 'CenterScan');
           if (centerScan) {
             def.CenterScan = {
@@ -253,6 +263,7 @@ export const experimentSlice = createSlice({
               seed: null,
             } as CenterScan;
           }
+
           const explicitScan = info.default.find((d: any) => d.ty === 'ExplicitScan');
           if (explicitScan) {
             def.ExplicitScan = {
@@ -265,6 +276,7 @@ export const experimentSlice = createSlice({
               sequence: [],
             } as ExplicitScan;
           }
+
           return {
             ...baseArg,
             value: def,
@@ -279,6 +291,7 @@ export const experimentSlice = createSlice({
         }
         throw new Error(`Unknown argument type: ${info.type}`);
       });
+      
       const experiment = {
         id: uuidv4(),
         name: clsData.name,
