@@ -5,11 +5,13 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import type { RootState } from '../..';
 
-export type ArgKind = 'BooleanArg' | 'EnumerationArg' | 'NumberArg' | 'StringArg' | 'ScanArg';
+export type ArgTy = (
+  'BooleanValue' | 'EnumerationValue' | 'NumberValue' | 'StringValue' | 'Scannable'
+);
 
 export interface Arg<T> {
   id: string;
-  kind: ArgKind;
+  ty: ArgTy;
   name: string;
   value: T;
   default: T;
@@ -35,10 +37,10 @@ export interface NumberArg extends Arg<number> {
 
 export interface StringArg extends Arg<string> {}
 
-export type ScanKind = 'NoScan' | 'RangeScan' | 'CenterScan' | 'ExplicitScan';
+export type ScanTy = 'NoScan' | 'RangeScan' | 'CenterScan' | 'ExplicitScan';
 
 export interface Scan {
-  kind: ScanKind;
+  ty: ScanTy;
 }
 
 export interface NoScan extends Scan {
@@ -67,7 +69,7 @@ export interface ExplicitScan extends Scan {
 }
 
 export interface ScanInfo {
-  selected: ScanKind;
+  selected: ScanTy;
   NoScan: NoScan;
   RangeScan: RangeScan;
   CenterScan: CenterScan;
@@ -135,6 +137,7 @@ export const experimentSlice = createSlice({
         const [info, group, tooltip] = value as any[];
         const baseArg = {
           id: uuidv4(),
+          ty: info.ty,
           name: name,
           group: group,
           tooltip: tooltip,
@@ -143,7 +146,6 @@ export const experimentSlice = createSlice({
           const def = info.default !== undefined ? info.default : false;
           return {
             ...baseArg,
-            kind: 'BooleanArg',
             value: def,
             default: def,
           } as BooleanArg;
@@ -151,7 +153,6 @@ export const experimentSlice = createSlice({
           const def = info.default !== undefined ? info.default : info.choices[0];
           return {
             ...baseArg,
-            kind: 'EnumerationArg',
             value: def,
             default: def,
             choices: info.choices,
@@ -169,7 +170,6 @@ export const experimentSlice = createSlice({
           );
           return {
             ...baseArg,
-            kind: 'NumberArg',
             value: def,
             default: def,
             unit: info.unit,
@@ -184,7 +184,6 @@ export const experimentSlice = createSlice({
           const def = info.default !== undefined ? info.default : '';
           return {
             ...baseArg,
-            kind: 'StringArg',
             value: def,
             default: def,
           } as StringArg;
@@ -195,13 +194,13 @@ export const experimentSlice = createSlice({
           const noScan = info.default.find((d: any) => d.ty === 'NoScan');
           if (noScan) {
             def.NoScan = {
-              kind: 'NoScan',
+              ty: 'NoScan',
               value: noScan.value,
               repetitions: noScan.repetitions,
             } as NoScan;
           } else {
             def.NoScan = {
-              kind: 'NoScan',
+              ty: 'NoScan',
               value: info.global_min !== null ? info.global_min : (
                 info.global_max !== null ? info.global_max : 0
               ),
@@ -211,7 +210,7 @@ export const experimentSlice = createSlice({
           const rangeScan = info.default.find((d: any) => d.ty === 'RangeScan');
           if (rangeScan) {
             def.RangeScan = {
-              kind: 'RangeScan',
+              ty: 'RangeScan',
               start: rangeScan.start,
               stop: rangeScan.stop,
               npoints: rangeScan.npoints,
@@ -220,7 +219,7 @@ export const experimentSlice = createSlice({
             } as RangeScan;
           } else {
             def.RangeScan = {
-              kind: 'RangeScan',
+              ty: 'RangeScan',
               start: info.global_min !== null ? info.global_min : (
                 info.global_max !== null ? info.global_max : 0
               ),
@@ -235,7 +234,7 @@ export const experimentSlice = createSlice({
           const centerScan = info.default.find((d: any) => d.ty === 'CenterScan');
           if (centerScan) {
             def.CenterScan = {
-              kind: 'CenterScan',
+              ty: 'CenterScan',
               center: centerScan.center,
               span: centerScan.span,
               step: centerScan.step,
@@ -244,7 +243,7 @@ export const experimentSlice = createSlice({
             } as CenterScan;
           } else {
             def.CenterScan = {
-              kind: 'CenterScan',
+              ty: 'CenterScan',
               center: info.global_min !== null ? info.global_min : (
                 info.global_max !== null ? info.global_max : 0
               ),
@@ -257,18 +256,17 @@ export const experimentSlice = createSlice({
           const explicitScan = info.default.find((d: any) => d.ty === 'ExplicitScan');
           if (explicitScan) {
             def.ExplicitScan = {
-              kind: 'ExplicitScan',
+              ty: 'ExplicitScan',
               sequence: explicitScan.sequence,
             } as ExplicitScan;
           } else {
             def.ExplicitScan = {
-              kind: 'ExplicitScan',
+              ty: 'ExplicitScan',
               sequence: [],
             } as ExplicitScan;
           }
           return {
             ...baseArg,
-            kind: 'ScanArg',
             value: def,
             default: def,
             unit: info.unit,
