@@ -21,7 +21,7 @@ import {
   ScanArgInput,
   StringArgInput,
 } from './ArgInput';
-import { PipelineInput, PriorityInput } from './SchedOptInput';
+import { PipelineInput, PriorityInput, TimedInput } from './SchedOptInput';
 
 type ExperimentPanelProps = {
   experiment: Experiment;
@@ -117,6 +117,7 @@ export default function ExperimentPanel({ experiment }: ExperimentPanelProps) {
               <Stack spacing={2}>
                 <PipelineInput experiment={experiment} />
                 <PriorityInput experiment={experiment} />
+                <TimedInput experiment={experiment} />
               </Stack>
             </TabPanel>
           </TabContext>

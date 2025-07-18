@@ -543,19 +543,21 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
     };
 
     return (
-      <TextField
-        label='sequence'
-        variant='outlined'
-        fullWidth
-        value={rawSequence}
-        onChange={(event) => setRawSequence(event.target.value)}
-        onBlur={() => handleSequenceBlur()}
-        slotProps={{
-          input: {
-            endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
-          },
-        }}
-      />
+      <Box>
+        <TextField
+          label='sequence'
+          variant='outlined'
+          fullWidth
+          value={rawSequence}
+          onChange={(event) => setRawSequence(event.target.value)}
+          onBlur={() => handleSequenceBlur()}
+          slotProps={{
+            input: {
+              endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
+            },
+          }}
+        />
+      </Box>
     );
   };
 

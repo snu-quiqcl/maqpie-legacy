@@ -1,7 +1,11 @@
+import { DateTime } from 'luxon';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Box from '@mui/material/Box';
+import Checkbox from '@mui/material/Checkbox';
+import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
 import type { AppDispatch } from '../../../../store';
 import { experimentActions, type Experiment } from '../../../../store/slices/experiment/experiment';
@@ -65,5 +69,33 @@ export function PriorityInput({ experiment }: SchedOptInputProps) {
         onBlur={() => handlePriorityBlur()}
       />
     </Box>
+  );
+}
+
+export function TimedInput({ experiment }: SchedOptInputProps) {
+  const dispatch = useDispatch<AppDispatch>();
+  const [timedEnabled, setTimedEnabled] = useState<boolean>(experiment.schedOpts.timed !== null);
+
+  const handleChange = (value: DateTime | null) => {
+    dispatch(experimentActions.updateExperiment({
+      experimentId: experiment.id,
+      experiment: { ...experiment, schedOpts: { ...experiment.schedOpts, timed: value } },
+    }));
+  };
+
+  return (
+    <Stack direction='row' spacing={2}>
+      <DateTimePicker
+        label='Timed'
+        views={['year', 'month', 'day', 'hours', 'minutes', 'seconds']}
+        disabled={!timedEnabled}
+        value={experiment.schedOpts.timed}
+        onChange={handleChange}
+      />
+      <Checkbox
+        checked={timedEnabled}
+        onChange={(event) => setTimedEnabled(event.target.checked)}
+      />
+    </Stack>
   );
 }
