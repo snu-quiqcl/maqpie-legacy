@@ -27,6 +27,7 @@ import {
   type ScanArg,
   type StringArg,
 } from '../../../../store/slices/experiment/experiment';
+import { formatDict } from '../../../../utils/utils';
 
 function validateAndScaleNumber(
   rawValue: string,
@@ -578,10 +579,18 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
               centered
               onChange={(_, value) => handleTabChange(value)}
             >
-              <Tab label='No' value='NoScan' />
-              <Tab label='Range' value='RangeScan' />
-              <Tab label='Center' value='CenterScan' />
-              <Tab label='Explicit' value='ExplicitScan' />
+              <Tooltip title={formatDict(arg.default.NoScan)}>
+                <Tab label='No' value='NoScan' />
+              </Tooltip>
+              <Tooltip title={formatDict(arg.default.RangeScan)}>
+                <Tab label='Range' value='RangeScan' />
+              </Tooltip>
+              <Tooltip title={formatDict(arg.default.CenterScan)}>
+                <Tab label='Center' value='CenterScan' />
+              </Tooltip>
+              <Tooltip title={formatDict(arg.default.ExplicitScan)}>
+                <Tab label='Explicit' value='ExplicitScan' />
+              </Tooltip>
             </TabList>
           </Box>
           <TabPanel value='NoScan'>
