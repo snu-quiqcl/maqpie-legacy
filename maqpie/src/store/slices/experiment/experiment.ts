@@ -162,6 +162,11 @@ export const experimentSlice = createSlice({
               info.max !== null ? info.max : 0
             )
           );
+          const type = info.type !== 'auto' ? info.type : (
+            info.ndecimals === 0 && info.scale === 1 && Number.isInteger(info.step) ?
+            'int' :
+            'float'
+          );
           return {
             ...baseArg,
             kind: 'NumberArg',
@@ -173,7 +178,7 @@ export const experimentSlice = createSlice({
             min: info.min,
             max: info.max,
             ndecimals: info.ndecimals,
-            type: info.type,
+            type: type,
           } as NumberArg;
         } else if (info.ty === 'StringValue') {
           const def = info.default !== undefined ? info.default : '';
