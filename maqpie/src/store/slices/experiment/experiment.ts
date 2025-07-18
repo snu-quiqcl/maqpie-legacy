@@ -35,7 +35,11 @@ export interface NumberArg extends Arg<number> {
 
 export interface StringArg extends Arg<string> {}
 
-export interface Scan {}
+export type ScanKind = 'NoScan' | 'RangeScan' | 'CenterScan' | 'ExplicitScan';
+
+export interface Scan {
+  kind: ScanKind;
+}
 
 export interface NoScan extends Scan {
   value: number;
@@ -62,7 +66,15 @@ export interface ExplicitScan extends Scan {
   sequence: number[];
 }
 
-export interface ScanArg extends Arg<Scan> {
+export interface ScanInfo {
+  selected: ScanKind;
+  NoScan: NoScan;
+  RangeScan: RangeScan;
+  CenterScan: CenterScan;
+  ExplicitScan: ExplicitScan;
+}
+
+export interface ScanArg extends Arg<ScanInfo> {
   unit: string;
   scale: number;
   global_step: number;
@@ -126,7 +138,7 @@ export const experimentSlice = createSlice({
           name: name,
           group: group,
           tooltip: tooltip,
-        };
+        } as Arg<any>;
         if (info.ty === 'BooleanValue') {
           const def = info.default !== undefined ? info.default : false;
           return {
@@ -172,35 +184,82 @@ export const experimentSlice = createSlice({
             default: def,
           } as StringArg;
         } else if (info.ty === 'Scannable') {
-          const [defInfo] = info.default as any[];
-          let def: Scan;
-          if (defInfo.ty === 'NoScan') {
-            def = {
-              value: defInfo.value,
-              repetitions: defInfo.repetitions,
+          const def = {
+            selected: info.default ? info.default[0].ty : 'NoScan',
+          } as ScanInfo;
+          const noScan = info.default.find((d: any) => d.ty === 'NoScan');
+          if (noScan) {
+            def.NoScan = {
+              kind: 'NoScan',
+              value: noScan.value,
+              repetitions: noScan.repetitions,
             } as NoScan;
-          } else if (defInfo.ty === 'RangeScan') {
-            def = {
-              start: defInfo.start,
-              stop: defInfo.stop,
-              npoints: defInfo.npoints,
-              randomize: defInfo.randomize,
-              seed: defInfo.seed,
+          } else {
+            def.NoScan = {
+              kind: 'NoScan',
+              value: info.global_min !== null ? info.global_min : (
+                info.global_max !== null ? info.global_max : 0
+              ),
+              repetitions: 0,
+            } as NoScan;
+          }
+          const rangeScan = info.default.find((d: any) => d.ty === 'RangeScan');
+          if (rangeScan) {
+            def.RangeScan = {
+              kind: 'RangeScan',
+              start: rangeScan.start,
+              stop: rangeScan.stop,
+              npoints: rangeScan.npoints,
+              randomize: rangeScan.randomize,
+              seed: rangeScan.seed,
             } as RangeScan;
-          } else if (defInfo.ty === 'CenterScan') {
-            def = {
-              center: defInfo.center,
-              span: defInfo.span,
-              step: defInfo.step,
-              randomize: defInfo.randomize,
-              seed: defInfo.seed,
+          } else {
+            def.RangeScan = {
+              kind: 'RangeScan',
+              start: info.global_min !== null ? info.global_min : (
+                info.global_max !== null ? info.global_max : 0
+              ),
+              stop: info.global_max !== null ? info.global_max : (
+                info.global_min !== null ? info.global_min : 0
+              ),
+              npoints: 0,
+              randomize: false,
+              seed: null,
+            } as RangeScan;
+          }
+          const centerScan = info.default.find((d: any) => d.ty === 'CenterScan');
+          if (centerScan) {
+            def.CenterScan = {
+              kind: 'CenterScan',
+              center: centerScan.center,
+              span: centerScan.span,
+              step: centerScan.step,
+              randomize: centerScan.randomize,
+              seed: centerScan.seed,
             } as CenterScan;
-          } else if (defInfo.ty === 'ExplicitScan') {
-            def = {
-              sequence: defInfo.sequence,
+          } else {
+            def.CenterScan = {
+              kind: 'CenterScan',
+              center: info.global_min !== null ? info.global_min : (
+                info.global_max !== null ? info.global_max : 0
+              ),
+              span: 0,
+              step: 0,
+              randomize: false,
+              seed: null,
+            } as CenterScan;
+          }
+          const explicitScan = info.default.find((d: any) => d.ty === 'ExplicitScan');
+          if (explicitScan) {
+            def.ExplicitScan = {
+              kind: 'ExplicitScan',
+              sequence: explicitScan.sequence,
             } as ExplicitScan;
           } else {
-            throw new Error(`Unknown scan type: ${defInfo.type}`);
+            def.ExplicitScan = {
+              kind: 'ExplicitScan',
+              sequence: [],
+            } as ExplicitScan;
           }
           return {
             ...baseArg,
