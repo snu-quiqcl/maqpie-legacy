@@ -197,11 +197,8 @@ export function StringArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
 export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
   const arg = arg_ as ScanArg;
   const dispatch = useDispatch<AppDispatch>();
-  const def: number = (
-    arg.global_min !== null ? arg.global_min : (arg.global_max !== null ? arg.global_max : 0)
-  );
 
-  const validateAndScaleNumberInScan = (value: string) => {
+  const validateAndScaleNumberInScan = (value: string, def: number) => {
     return validateAndScaleNumber(
       value,
       arg.scale,
@@ -225,7 +222,7 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
     const [rawRepetitions, setRawRepetitions] = useState<string>(noScan.repetitions.toString());
 
     const handleNoScanValueBlur = () => {
-      const value = validateAndScaleNumberInScan(rawValue);
+      const value = validateAndScaleNumberInScan(rawValue, noScan.value);
       setRawValue((value / arg.scale).toString());
 
       dispatch(experimentActions.updateArg({
@@ -236,7 +233,9 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
     };
 
     const handleNoScanRepetitionsBlur = () => {
-      const repetitions = Math.floor(validateAndScaleNumber(rawRepetitions, 1, 0, 0, null));
+      const repetitions = Math.floor(validateAndScaleNumber(
+        rawRepetitions, 1, noScan.repetitions, 0, null
+      ));
       setRawRepetitions(repetitions.toString());
 
       dispatch(experimentActions.updateArg({
@@ -278,9 +277,10 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
     const [rawStart, setRawStart] = useState<string>((rangeScan.start / arg.scale).toString());
     const [rawStop, setRawStop] = useState<string>((rangeScan.stop / arg.scale).toString());
     const [rawNpoints, setRawNpoints] = useState<string>(rangeScan.npoints.toString());
+    const [rawSeed, setRawSeed] = useState<string>(rangeScan.seed?.toString() ?? '');
 
     const handleRangeScanStartBlur = () => {
-      const start = validateAndScaleNumberInScan(rawStart);
+      const start = validateAndScaleNumberInScan(rawStart, rangeScan.start);
       setRawStart((start / arg.scale).toString());
 
       dispatch(experimentActions.updateArg({
@@ -291,7 +291,7 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
     };
 
     const handleRangeScanStopBlur = () => {
-      const stop = validateAndScaleNumberInScan(rawStop);
+      const stop = validateAndScaleNumberInScan(rawStop, rangeScan.stop);
       setRawStop((stop / arg.scale).toString());
 
       dispatch(experimentActions.updateArg({
@@ -302,7 +302,7 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
     };
 
     const handleRangeScanNpointsBlur = () => {
-      const npoints = Math.floor(validateAndScaleNumber(rawNpoints, 1, 0, 0, null));
+      const npoints = Math.floor(validateAndScaleNumber(rawNpoints, 1, rangeScan.npoints, 0, null));
       setRawNpoints(npoints.toString());
 
       dispatch(experimentActions.updateArg({
@@ -319,6 +319,17 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
         arg: { ...arg, value: { ...arg.value, RangeScan: {
           ...rangeScan, randomize: event.target.checked,
         } } },
+      }));
+    };
+
+    const handleRangeScanSeedBlur = () => {
+      const seed = Math.floor(validateAndScaleNumber(rawSeed, 1, rangeScan.seed ?? 0, 0, null));
+      setRawSeed(seed.toString());
+
+      dispatch(experimentActions.updateArg({
+        experimentId,
+        argId: arg.id,
+        arg: { ...arg, value: { ...arg.value, RangeScan: { ...rangeScan, seed } } },
       }));
     };
 
@@ -351,8 +362,6 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
               },
             }}
           />
-        </Stack>
-        <Stack direction='row' spacing={2}>
           <TextField
             label='npoints'
             variant='outlined'
@@ -361,6 +370,8 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
             onChange={(event) => setRawNpoints(event.target.value)}
             onBlur={() => handleRangeScanNpointsBlur()}
           />
+        </Stack>
+        <Stack direction='row' spacing={2}>
           <FormControlLabel
             control={
               <Checkbox
@@ -369,6 +380,143 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
               />
             }
             label={'Randomize'}
+          />
+          <TextField
+            label='seed'
+            variant='outlined'
+            fullWidth
+            disabled={!rangeScan.randomize}
+            value={rawSeed}
+            onChange={(event) => setRawSeed(event.target.value)}
+            onBlur={() => handleRangeScanSeedBlur()}
+          />
+        </Stack>
+      </Stack>
+    );
+  };
+
+  const renderCenterScan = () => {
+    const centerScan = arg.value.CenterScan;
+    const [rawCenter, setRawCenter] = useState<string>((centerScan.center / arg.scale).toString());
+    const [rawSpan, setRawSpan] = useState<string>((centerScan.span / arg.scale).toString());
+    const [rawStep, setRawStep] = useState<string>((centerScan.step / arg.scale).toString());
+    const [rawSeed, setRawSeed] = useState<string>(centerScan.seed?.toString() ?? '');
+
+    const handleCenterScanCenterBlur = () => {
+      const center = validateAndScaleNumberInScan(rawCenter, centerScan.center);
+      setRawCenter((center / arg.scale).toString());
+
+      dispatch(experimentActions.updateArg({
+        experimentId,
+        argId: arg.id,
+        arg: { ...arg, value: { ...arg.value, CenterScan: { ...centerScan, center } } },
+      }));
+    };
+
+    const handleCenterScanSpanBlur = () => {
+      const span = validateAndScaleNumber(rawSpan, arg.scale, centerScan.span, 0, null);
+      setRawSpan((span / arg.scale).toString());
+
+      dispatch(experimentActions.updateArg({
+        experimentId,
+        argId: arg.id,
+        arg: { ...arg, value: { ...arg.value, CenterScan: { ...centerScan, span } } },
+      }));
+    };
+
+    const handleCenterScanStepBlur = () => {
+      const step = validateAndScaleNumber(rawStep, arg.scale, centerScan.step, 0, null);
+      setRawStep(step.toString());
+
+      dispatch(experimentActions.updateArg({
+        experimentId,
+        argId: arg.id,
+        arg: { ...arg, value: { ...arg.value, CenterScan: { ...centerScan, step } } },
+      }));
+    };
+
+    const handleCenterScanRandomizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      dispatch(experimentActions.updateArg({
+        experimentId,
+        argId: arg.id,
+        arg: { ...arg, value: { ...arg.value, CenterScan: {
+          ...centerScan, randomize: event.target.checked,
+        } } },
+      }));
+    };
+
+    const handleCenterScanSeedBlur = () => {
+      const seed = Math.floor(validateAndScaleNumber(rawSeed, 1, centerScan.seed ?? 0, 0, null));
+      setRawSeed(seed.toString());
+
+      dispatch(experimentActions.updateArg({
+        experimentId,
+        argId: arg.id,
+        arg: { ...arg, value: { ...arg.value, CenterScan: { ...centerScan, seed } } },
+      }));
+    };
+
+    return (
+      <Stack spacing={2}>
+        <Stack direction='row' spacing={2}>
+          <TextField
+            label='center'
+            variant='outlined'
+            fullWidth
+            value={rawCenter}
+            onChange={(event) => setRawCenter(event.target.value)}
+            onBlur={() => handleCenterScanCenterBlur()}
+            slotProps={{
+              input: {
+                endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
+              },
+            }}
+          />
+          <TextField
+            label='repetitions'
+            variant='outlined'
+            fullWidth
+            value={rawSpan}
+            onChange={(event) => setRawSpan(event.target.value)}
+            onBlur={() => handleCenterScanSpanBlur()}
+            slotProps={{
+              input: {
+                endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
+              },
+            }}
+          />
+          <TextField
+            label='step'
+            variant='outlined'
+            fullWidth
+            value={rawStep}
+            onChange={(event) => setRawStep(event.target.value)}
+            onBlur={() => handleCenterScanStepBlur()}
+            slotProps={{
+              input: {
+                endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
+              },
+            }}
+          />
+        </Stack>
+        <Stack direction='row' spacing={2}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={centerScan.randomize}
+                onChange={handleCenterScanRandomizeChange}
+              />
+            }
+            label={'Randomize'}
+          />
+          <TextField
+            label='seed'
+            variant='outlined'
+            fullWidth
+            disabled={!centerScan.randomize}
+            value={rawSeed}
+            onChange={(event) => setRawSeed(event.target.value)}
+            onBlur={() => handleCenterScanSeedBlur()}
           />
         </Stack>
       </Stack>
@@ -409,7 +557,7 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
             {renderRangeScan()}
           </TabPanel>
           <TabPanel value='CenterScan'>
-            3
+            {renderCenterScan()}
           </TabPanel>
           <TabPanel value='ExplicitScan'>
             4
