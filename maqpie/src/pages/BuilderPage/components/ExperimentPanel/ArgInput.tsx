@@ -273,6 +273,108 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
     );
   };
 
+  const renderRangeScan = () => {
+    const rangeScan = arg.value.RangeScan;
+    const [rawStart, setRawStart] = useState<string>((rangeScan.start / arg.scale).toString());
+    const [rawStop, setRawStop] = useState<string>((rangeScan.stop / arg.scale).toString());
+    const [rawNpoints, setRawNpoints] = useState<string>(rangeScan.npoints.toString());
+
+    const handleRangeScanStartBlur = () => {
+      const start = validateAndScaleNumberInScan(rawStart);
+      setRawStart((start / arg.scale).toString());
+
+      dispatch(experimentActions.updateArg({
+        experimentId,
+        argId: arg.id,
+        arg: { ...arg, value: { ...arg.value, RangeScan: { ...rangeScan, start } } },
+      }));
+    };
+
+    const handleRangeScanStopBlur = () => {
+      const stop = validateAndScaleNumberInScan(rawStop);
+      setRawStop((stop / arg.scale).toString());
+
+      dispatch(experimentActions.updateArg({
+        experimentId,
+        argId: arg.id,
+        arg: { ...arg, value: { ...arg.value, RangeScan: { ...rangeScan, stop } } },
+      }));
+    };
+
+    const handleRangeScanNpointsBlur = () => {
+      const npoints = Math.floor(validateAndScaleNumber(rawNpoints, 1, 0, 0, null));
+      setRawNpoints(npoints.toString());
+
+      dispatch(experimentActions.updateArg({
+        experimentId,
+        argId: arg.id,
+        arg: { ...arg, value: { ...arg.value, RangeScan: { ...rangeScan, npoints } } },
+      }));
+    };
+
+    const handleRangeScanRandomizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      dispatch(experimentActions.updateArg({
+        experimentId,
+        argId: arg.id,
+        arg: { ...arg, value: { ...arg.value, RangeScan: {
+          ...rangeScan, randomize: event.target.checked,
+        } } },
+      }));
+    };
+
+    return (
+      <Stack spacing={2}>
+        <Stack direction='row' spacing={2}>
+          <TextField
+            label='start'
+            variant='outlined'
+            fullWidth
+            value={rawStart}
+            onChange={(event) => setRawStart(event.target.value)}
+            onBlur={() => handleRangeScanStartBlur()}
+            slotProps={{
+              input: {
+                endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
+              },
+            }}
+          />
+          <TextField
+            label='repetitions'
+            variant='outlined'
+            fullWidth
+            value={rawStop}
+            onChange={(event) => setRawStop(event.target.value)}
+            onBlur={() => handleRangeScanStopBlur()}
+            slotProps={{
+              input: {
+                endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
+              },
+            }}
+          />
+        </Stack>
+        <Stack direction='row' spacing={2}>
+          <TextField
+            label='npoints'
+            variant='outlined'
+            fullWidth
+            value={rawNpoints}
+            onChange={(event) => setRawNpoints(event.target.value)}
+            onBlur={() => handleRangeScanNpointsBlur()}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={rangeScan.randomize}
+                onChange={handleRangeScanRandomizeChange}
+              />
+            }
+            label={'Randomize'}
+          />
+        </Stack>
+      </Stack>
+    );
+  };
+
   return (
     <Stack spacing={2}>
       {arg.tooltip ? (
@@ -294,22 +396,22 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
               centered
               onChange={(_, value) => handleTabChange(value)}
             >
-              <Tab label='No' value='noScan' />
-              <Tab label='Range' value='rangeScan' />
-              <Tab label='Center' value='centerScan' />
-              <Tab label='Explicit' value='explicitScan' />
+              <Tab label='No' value='NoScan' />
+              <Tab label='Range' value='RangeScan' />
+              <Tab label='Center' value='CenterScan' />
+              <Tab label='Explicit' value='ExplicitScan' />
             </TabList>
           </Box>
-          <TabPanel value='noScan'>
+          <TabPanel value='NoScan'>
             {renderNoScan()}
           </TabPanel>
-          <TabPanel value='rangeScan'>
-            2
+          <TabPanel value='RangeScan'>
+            {renderRangeScan()}
           </TabPanel>
-          <TabPanel value='centerScan'>
+          <TabPanel value='CenterScan'>
             3
           </TabPanel>
-          <TabPanel value='explicitScan'>
+          <TabPanel value='ExplicitScan'>
             4
           </TabPanel>
         </TabContext>
