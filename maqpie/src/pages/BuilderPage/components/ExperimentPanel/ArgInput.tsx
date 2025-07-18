@@ -216,7 +216,7 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
     }));
   };
 
-  const renderNoScan = () => {
+  const RenderNoScan = () => {
     const noScan = arg.value.NoScan;
     const [rawValue, setRawValue] = useState<string>((noScan.value / arg.scale).toString());
     const [rawRepetitions, setRawRepetitions] = useState<string>(noScan.repetitions.toString());
@@ -272,7 +272,7 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
     );
   };
 
-  const renderRangeScan = () => {
+  const RenderRangeScan = () => {
     const rangeScan = arg.value.RangeScan;
     const [rawStart, setRawStart] = useState<string>((rangeScan.start / arg.scale).toString());
     const [rawStop, setRawStop] = useState<string>((rangeScan.stop / arg.scale).toString());
@@ -395,7 +395,7 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
     );
   };
 
-  const renderCenterScan = () => {
+  const RenderCenterScan = () => {
     const centerScan = arg.value.CenterScan;
     const [rawCenter, setRawCenter] = useState<string>((centerScan.center / arg.scale).toString());
     const [rawSpan, setRawSpan] = useState<string>((centerScan.span / arg.scale).toString());
@@ -523,7 +523,7 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
     );
   };
 
-  const renderExplicitScan = () => {
+  const RenderExplicitScan = () => {
     const explicitScan = arg.value.ExplicitScan;
     const [rawSequence, setRawSequence] = useState<string>(
       explicitScan.sequence.map((value) => (value / arg.scale).toString()).join(', ')
@@ -585,16 +585,16 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
             </TabList>
           </Box>
           <TabPanel value='NoScan'>
-            {renderNoScan()}
+            {RenderNoScan()}
           </TabPanel>
           <TabPanel value='RangeScan'>
-            {renderRangeScan()}
+            {RenderRangeScan()}
           </TabPanel>
           <TabPanel value='CenterScan'>
-            {renderCenterScan()}
+            {RenderCenterScan()}
           </TabPanel>
           <TabPanel value='ExplicitScan'>
-            {renderExplicitScan()}
+            {RenderExplicitScan()}
           </TabPanel>
         </TabContext>
       </Box>
