@@ -14,7 +14,12 @@ import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 
 import type { AppDispatch } from '../../../../store';
-import { experimentActions, submitExperiment, type Experiment } from '../../../../store/slices/experiment/experiment';
+import {
+  experimentActions,
+  reloadExperiment,
+  submitExperiment,
+  type Experiment,
+} from '../../../../store/slices/experiment/experiment';
 import {
   BooleanArgInput,
   EnumerationArgInput,
@@ -46,6 +51,10 @@ export default function ExperimentPanel({ experiment }: ExperimentPanelProps) {
     dispatch(submitExperiment(experiment));
   };
 
+  const handleReloadClick = () => {
+    dispatch(reloadExperiment(experiment));
+  };
+
   return (
     <Card id={experiment.id} variant='outlined'>
       <CardContent>
@@ -59,13 +68,26 @@ export default function ExperimentPanel({ experiment }: ExperimentPanelProps) {
           onChange={(event) => handleTagChange(event, experiment.id)}
         />
         <Typography variant='subtitle1'>{experiment.name}</Typography>
-        <Stack direction='row' spacing={2}>
+        <Stack direction='row' justifyContent='space-between' spacing={2}>
           <Button
             variant='contained'
             onClick={() => handleSubmitClick()}
           >
             Submit
           </Button>
+          <Stack direction='row' spacing={2}>
+            <Button
+              variant='contained'
+              onClick={() => handleReloadClick()}
+            >
+              Reload
+            </Button>
+            <Button
+              variant='contained'
+            >
+              Delete
+            </Button>
+          </Stack>
         </Stack>
         <Box>
           <TabContext value={activeTab}>

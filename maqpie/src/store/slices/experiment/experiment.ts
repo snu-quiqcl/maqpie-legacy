@@ -126,6 +126,20 @@ export const fetchExperiment = createAsyncThunk(
   }
 );
 
+export const reloadExperiment = createAsyncThunk(
+  'experiment/reloadExperiment',
+  async (payload: Experiment) => {
+    const response = await axios.get('/api/experiment/info/', {
+      params: { file: payload.path },
+    });
+
+    return {
+      data: response.data,
+      experiment: payload,
+    };
+  }
+);
+
 export const submitExperiment = createAsyncThunk(
   'experiment/submitExperiment',
   async (payload: Experiment) => {
@@ -155,6 +169,167 @@ export const submitExperiment = createAsyncThunk(
     };
   }
 );
+
+function getArgsFromClsData(clsData: any) {
+  const args = Object.entries(clsData.arginfo).map(([name, value]) => {
+    const [info, group, tooltip] = value as any[];
+    const baseArg = {
+      id: uuidv4(),
+      ty: info.ty,
+      name: name,
+      group: group,
+      tooltip: tooltip,
+    } as Arg<any>;
+
+    if (info.ty === 'BooleanValue') {
+      const def = info.default !== undefined ? info.default : false;
+
+      return {
+        ...baseArg,
+        value: def,
+        default: def,
+      } as BooleanArg;
+    } else if (info.ty === 'EnumerationValue') {
+      const def = info.default !== undefined ? info.default : info.choices[0];
+
+      return {
+        ...baseArg,
+        value: def,
+        default: def,
+        choices: info.choices,
+      } as EnumerationArg;
+    } else if (info.ty === 'NumberValue') {
+      const def = info.default !== undefined ? info.default : (
+        info.min !== null ? info.min : (
+          info.max !== null ? info.max : 0
+        )
+      );
+      const type = info.type !== 'auto' ? info.type : (
+        info.ndecimals === 0 && info.scale === 1 && Number.isInteger(info.step) ?
+        'int' :
+        'float'
+      );
+
+      return {
+        ...baseArg,
+        value: def,
+        default: def,
+        unit: info.unit,
+        scale: info.scale,
+        step: info.step,
+        min: info.min,
+        max: info.max,
+        ndecimals: info.ndecimals,
+        type: type,
+      } as NumberArg;
+    } else if (info.ty === 'StringValue') {
+      const def = info.default !== undefined ? info.default : '';
+      
+      return {
+        ...baseArg,
+        value: def,
+        default: def,
+      } as StringArg;
+    } else if (info.ty === 'Scannable') {
+      const def = {
+        selected: info.default ? info.default[0].ty : 'NoScan',
+      } as ScanInfo;
+
+      const noScan = info.default.find((d: any) => d.ty === 'NoScan');
+      if (noScan) {
+        def.NoScan = {
+          ty: 'NoScan',
+          value: noScan.value,
+          repetitions: noScan.repetitions,
+        } as NoScan;
+      } else {
+        def.NoScan = {
+          ty: 'NoScan',
+          value: info.global_min !== null ? info.global_min : (
+            info.global_max !== null ? info.global_max : 0
+          ),
+          repetitions: 0,
+        } as NoScan;
+      }
+
+      const rangeScan = info.default.find((d: any) => d.ty === 'RangeScan');
+      if (rangeScan) {
+        def.RangeScan = {
+          ty: 'RangeScan',
+          start: rangeScan.start,
+          stop: rangeScan.stop,
+          npoints: rangeScan.npoints,
+          randomize: rangeScan.randomize,
+          seed: rangeScan.seed,
+        } as RangeScan;
+      } else {
+        def.RangeScan = {
+          ty: 'RangeScan',
+          start: info.global_min !== null ? info.global_min : (
+            info.global_max !== null ? info.global_max : 0
+          ),
+          stop: info.global_max !== null ? info.global_max : (
+            info.global_min !== null ? info.global_min : 0
+          ),
+          npoints: 0,
+          randomize: false,
+          seed: null,
+        } as RangeScan;
+      }
+
+      const centerScan = info.default.find((d: any) => d.ty === 'CenterScan');
+      if (centerScan) {
+        def.CenterScan = {
+          ty: 'CenterScan',
+          center: centerScan.center,
+          span: centerScan.span,
+          step: centerScan.step,
+          randomize: centerScan.randomize,
+          seed: centerScan.seed,
+        } as CenterScan;
+      } else {
+        def.CenterScan = {
+          ty: 'CenterScan',
+          center: info.global_min !== null ? info.global_min : (
+            info.global_max !== null ? info.global_max : 0
+          ),
+          span: 0,
+          step: 0,
+          randomize: false,
+          seed: null,
+        } as CenterScan;
+      }
+
+      const explicitScan = info.default.find((d: any) => d.ty === 'ExplicitScan');
+      if (explicitScan) {
+        def.ExplicitScan = {
+          ty: 'ExplicitScan',
+          sequence: explicitScan.sequence,
+        } as ExplicitScan;
+      } else {
+        def.ExplicitScan = {
+          ty: 'ExplicitScan',
+          sequence: [],
+        } as ExplicitScan;
+      }
+
+      return {
+        ...baseArg,
+        value: def,
+        default: def,
+        unit: info.unit,
+        scale: info.scale,
+        global_step: info.global_step,
+        global_min: info.global_min,
+        global_max: info.global_max,
+        ndecimals: info.ndecimals,
+      } as ScanArg;
+    }
+    throw new Error(`Unknown argument type: ${info.type}`);
+  });
+
+  return args;
+}
 
 export const experimentSlice = createSlice({
   name: 'experiment',
@@ -192,164 +367,7 @@ export const experimentSlice = createSlice({
     builder.addCase(fetchExperiment.fulfilled, (state, action) => {
       const { data, path, cls } = action.payload;
       const clsData = data[cls];
-
-      const args = Object.entries(clsData.arginfo).map(([name, value]) => {
-        const [info, group, tooltip] = value as any[];
-        const baseArg = {
-          id: uuidv4(),
-          ty: info.ty,
-          name: name,
-          group: group,
-          tooltip: tooltip,
-        } as Arg<any>;
-
-        if (info.ty === 'BooleanValue') {
-          const def = info.default !== undefined ? info.default : false;
-
-          return {
-            ...baseArg,
-            value: def,
-            default: def,
-          } as BooleanArg;
-        } else if (info.ty === 'EnumerationValue') {
-          const def = info.default !== undefined ? info.default : info.choices[0];
-
-          return {
-            ...baseArg,
-            value: def,
-            default: def,
-            choices: info.choices,
-          } as EnumerationArg;
-        } else if (info.ty === 'NumberValue') {
-          const def = info.default !== undefined ? info.default : (
-            info.min !== null ? info.min : (
-              info.max !== null ? info.max : 0
-            )
-          );
-          const type = info.type !== 'auto' ? info.type : (
-            info.ndecimals === 0 && info.scale === 1 && Number.isInteger(info.step) ?
-            'int' :
-            'float'
-          );
-
-          return {
-            ...baseArg,
-            value: def,
-            default: def,
-            unit: info.unit,
-            scale: info.scale,
-            step: info.step,
-            min: info.min,
-            max: info.max,
-            ndecimals: info.ndecimals,
-            type: type,
-          } as NumberArg;
-        } else if (info.ty === 'StringValue') {
-          const def = info.default !== undefined ? info.default : '';
-          
-          return {
-            ...baseArg,
-            value: def,
-            default: def,
-          } as StringArg;
-        } else if (info.ty === 'Scannable') {
-          const def = {
-            selected: info.default ? info.default[0].ty : 'NoScan',
-          } as ScanInfo;
-
-          const noScan = info.default.find((d: any) => d.ty === 'NoScan');
-          if (noScan) {
-            def.NoScan = {
-              ty: 'NoScan',
-              value: noScan.value,
-              repetitions: noScan.repetitions,
-            } as NoScan;
-          } else {
-            def.NoScan = {
-              ty: 'NoScan',
-              value: info.global_min !== null ? info.global_min : (
-                info.global_max !== null ? info.global_max : 0
-              ),
-              repetitions: 0,
-            } as NoScan;
-          }
-
-          const rangeScan = info.default.find((d: any) => d.ty === 'RangeScan');
-          if (rangeScan) {
-            def.RangeScan = {
-              ty: 'RangeScan',
-              start: rangeScan.start,
-              stop: rangeScan.stop,
-              npoints: rangeScan.npoints,
-              randomize: rangeScan.randomize,
-              seed: rangeScan.seed,
-            } as RangeScan;
-          } else {
-            def.RangeScan = {
-              ty: 'RangeScan',
-              start: info.global_min !== null ? info.global_min : (
-                info.global_max !== null ? info.global_max : 0
-              ),
-              stop: info.global_max !== null ? info.global_max : (
-                info.global_min !== null ? info.global_min : 0
-              ),
-              npoints: 0,
-              randomize: false,
-              seed: null,
-            } as RangeScan;
-          }
-
-          const centerScan = info.default.find((d: any) => d.ty === 'CenterScan');
-          if (centerScan) {
-            def.CenterScan = {
-              ty: 'CenterScan',
-              center: centerScan.center,
-              span: centerScan.span,
-              step: centerScan.step,
-              randomize: centerScan.randomize,
-              seed: centerScan.seed,
-            } as CenterScan;
-          } else {
-            def.CenterScan = {
-              ty: 'CenterScan',
-              center: info.global_min !== null ? info.global_min : (
-                info.global_max !== null ? info.global_max : 0
-              ),
-              span: 0,
-              step: 0,
-              randomize: false,
-              seed: null,
-            } as CenterScan;
-          }
-
-          const explicitScan = info.default.find((d: any) => d.ty === 'ExplicitScan');
-          if (explicitScan) {
-            def.ExplicitScan = {
-              ty: 'ExplicitScan',
-              sequence: explicitScan.sequence,
-            } as ExplicitScan;
-          } else {
-            def.ExplicitScan = {
-              ty: 'ExplicitScan',
-              sequence: [],
-            } as ExplicitScan;
-          }
-
-          return {
-            ...baseArg,
-            value: def,
-            default: def,
-            unit: info.unit,
-            scale: info.scale,
-            global_step: info.global_step,
-            global_min: info.global_min,
-            global_max: info.global_max,
-            ndecimals: info.ndecimals,
-          } as ScanArg;
-        }
-        throw new Error(`Unknown argument type: ${info.type}`);
-      });
-      
+      const args = getArgsFromClsData(clsData);
       const experiment = {
         id: uuidv4(),
         name: clsData.name,
@@ -363,7 +381,24 @@ export const experimentSlice = createSlice({
           timed: null,
         } as SchedOpts,
       } as Experiment;
+
       state.experiments.push(experiment);
+    });
+    builder.addCase(reloadExperiment.fulfilled, (state, action) => {
+      const { data, experiment } = action.payload;
+      const experimentIndex = state.experiments.findIndex((e) => e.id === experiment.id);
+      if (experimentIndex === -1) {
+        throw new Error(`Experiment ${experiment.id} not found`);
+      }
+
+      const clsData = data[experiment.cls];
+      const args = getArgsFromClsData(clsData);
+      const newExperiment = {
+        ...experiment,
+        args: args,
+      } as Experiment;
+
+      state.experiments[experimentIndex] = newExperiment;
     });
   },
 });
