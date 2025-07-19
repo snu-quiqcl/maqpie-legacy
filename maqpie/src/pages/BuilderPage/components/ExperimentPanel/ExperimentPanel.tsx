@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Stack from '@mui/material/Stack';
@@ -13,7 +14,7 @@ import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 
 import type { AppDispatch } from '../../../../store';
-import { experimentActions, type Experiment } from '../../../../store/slices/experiment/experiment';
+import { experimentActions, submitExperiment, type Experiment } from '../../../../store/slices/experiment/experiment';
 import {
   BooleanArgInput,
   EnumerationArgInput,
@@ -41,6 +42,10 @@ export default function ExperimentPanel({ experiment }: ExperimentPanelProps) {
     }));
   };
 
+  const handleSubmitClick = () => {
+    dispatch(submitExperiment(experiment));
+  };
+
   return (
     <Card id={experiment.id} variant='outlined'>
       <CardContent>
@@ -54,6 +59,14 @@ export default function ExperimentPanel({ experiment }: ExperimentPanelProps) {
           onChange={(event) => handleTagChange(event, experiment.id)}
         />
         <Typography variant='subtitle1'>{experiment.name}</Typography>
+        <Stack direction='row' spacing={2}>
+          <Button
+            variant='contained'
+            onClick={() => handleSubmitClick()}
+          >
+            Submit
+          </Button>
+        </Stack>
         <Box>
           <TabContext value={activeTab}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>

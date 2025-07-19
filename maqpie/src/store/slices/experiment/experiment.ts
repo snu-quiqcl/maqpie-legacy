@@ -126,6 +126,36 @@ export const fetchExperiment = createAsyncThunk(
   }
 );
 
+export const submitExperiment = createAsyncThunk(
+  'experiment/submitExperiment',
+  async (payload: Experiment) => {
+    const args = Object.fromEntries(
+      payload.args.map((arg) => {
+        if (arg.ty !== 'Scannable') {
+          return [arg.name, arg.value];
+        } else {
+          return [arg.name, arg.value[arg.value.selected]];
+        }
+      })
+    );
+    const response = await axios.get('/api/experiment/submit/', {
+      params: {
+        file: payload.path,
+        cls: payload.cls,
+        args: JSON.stringify(args),
+        pipeline: payload.schedOpts.pipeline,
+        priority: payload.schedOpts.priority,
+        timed: payload.schedOpts.timed?.toISO(),
+      },
+    });
+
+    return {
+      data: response.data,
+      experiment: payload,
+    };
+  }
+);
+
 export const experimentSlice = createSlice({
   name: 'experiment',
   initialState,
