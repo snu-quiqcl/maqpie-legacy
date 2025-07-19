@@ -247,29 +247,31 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
     };
 
     return (
-      <Stack direction='row' spacing={2}>
-        <TextField
-          label='value'
-          variant='outlined'
-          fullWidth
-          value={rawValue}
-          onChange={(event) => setRawValue(event.target.value)}
-          onBlur={() => handleNoScanValueBlur()}
-          slotProps={{
-            input: {
-              endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
-            },
-          }}
-        />
-        <TextField
-          label='repetitions'
-          variant='outlined'
-          fullWidth
-          value={rawRepetitions}
-          onChange={(event) => setRawRepetitions(event.target.value)}
-          onBlur={() => handleNoScanRepetitionsBlur()}
-        />
-      </Stack>
+      <Tooltip title={formatDict(arg.default.NoScan)}>
+        <Stack direction='row' spacing={2}>
+          <TextField
+            label='value'
+            variant='outlined'
+            fullWidth
+            value={rawValue}
+            onChange={(event) => setRawValue(event.target.value)}
+            onBlur={() => handleNoScanValueBlur()}
+            slotProps={{
+              input: {
+                endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
+              },
+            }}
+          />
+          <TextField
+            label='repetitions'
+            variant='outlined'
+            fullWidth
+            value={rawRepetitions}
+            onChange={(event) => setRawRepetitions(event.target.value)}
+            onBlur={() => handleNoScanRepetitionsBlur()}
+          />
+        </Stack>
+      </Tooltip>
     );
   };
 
@@ -335,64 +337,66 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
     };
 
     return (
-      <Stack spacing={2}>
-        <Stack direction='row' spacing={2}>
-          <TextField
-            label='start'
-            variant='outlined'
-            fullWidth
-            value={rawStart}
-            onChange={(event) => setRawStart(event.target.value)}
-            onBlur={() => handleRangeScanStartBlur()}
-            slotProps={{
-              input: {
-                endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
-              },
-            }}
-          />
-          <TextField
-            label='stop'
-            variant='outlined'
-            fullWidth
-            value={rawStop}
-            onChange={(event) => setRawStop(event.target.value)}
-            onBlur={() => handleRangeScanStopBlur()}
-            slotProps={{
-              input: {
-                endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
-              },
-            }}
-          />
-          <TextField
-            label='npoints'
-            variant='outlined'
-            fullWidth
-            value={rawNpoints}
-            onChange={(event) => setRawNpoints(event.target.value)}
-            onBlur={() => handleRangeScanNpointsBlur()}
-          />
+      <Tooltip title={formatDict(arg.default.RangeScan)}>
+        <Stack spacing={2}>
+          <Stack direction='row' spacing={2}>
+            <TextField
+              label='start'
+              variant='outlined'
+              fullWidth
+              value={rawStart}
+              onChange={(event) => setRawStart(event.target.value)}
+              onBlur={() => handleRangeScanStartBlur()}
+              slotProps={{
+                input: {
+                  endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
+                },
+              }}
+            />
+            <TextField
+              label='stop'
+              variant='outlined'
+              fullWidth
+              value={rawStop}
+              onChange={(event) => setRawStop(event.target.value)}
+              onBlur={() => handleRangeScanStopBlur()}
+              slotProps={{
+                input: {
+                  endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
+                },
+              }}
+            />
+            <TextField
+              label='npoints'
+              variant='outlined'
+              fullWidth
+              value={rawNpoints}
+              onChange={(event) => setRawNpoints(event.target.value)}
+              onBlur={() => handleRangeScanNpointsBlur()}
+            />
+          </Stack>
+          <Stack direction='row' spacing={2}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={rangeScan.randomize}
+                  onChange={handleRangeScanRandomizeChange}
+                />
+              }
+              label={'Randomize'}
+            />
+            <TextField
+              label='seed'
+              variant='outlined'
+              fullWidth
+              disabled={!rangeScan.randomize}
+              value={rawSeed}
+              onChange={(event) => setRawSeed(event.target.value)}
+              onBlur={() => handleRangeScanSeedBlur()}
+            />
+          </Stack>
         </Stack>
-        <Stack direction='row' spacing={2}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={rangeScan.randomize}
-                onChange={handleRangeScanRandomizeChange}
-              />
-            }
-            label={'Randomize'}
-          />
-          <TextField
-            label='seed'
-            variant='outlined'
-            fullWidth
-            disabled={!rangeScan.randomize}
-            value={rawSeed}
-            onChange={(event) => setRawSeed(event.target.value)}
-            onBlur={() => handleRangeScanSeedBlur()}
-          />
-        </Stack>
-      </Stack>
+      </Tooltip>
     );
   };
 
@@ -458,69 +462,71 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
     };
 
     return (
-      <Stack spacing={2}>
-        <Stack direction='row' spacing={2}>
-          <TextField
-            label='center'
-            variant='outlined'
-            fullWidth
-            value={rawCenter}
-            onChange={(event) => setRawCenter(event.target.value)}
-            onBlur={() => handleCenterScanCenterBlur()}
-            slotProps={{
-              input: {
-                endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
-              },
-            }}
-          />
-          <TextField
-            label='span'
-            variant='outlined'
-            fullWidth
-            value={rawSpan}
-            onChange={(event) => setRawSpan(event.target.value)}
-            onBlur={() => handleCenterScanSpanBlur()}
-            slotProps={{
-              input: {
-                endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
-              },
-            }}
-          />
-          <TextField
-            label='step'
-            variant='outlined'
-            fullWidth
-            value={rawStep}
-            onChange={(event) => setRawStep(event.target.value)}
-            onBlur={() => handleCenterScanStepBlur()}
-            slotProps={{
-              input: {
-                endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
-              },
-            }}
-          />
+      <Tooltip title={formatDict(arg.default.CenterScan)}>
+        <Stack spacing={2}>
+          <Stack direction='row' spacing={2}>
+            <TextField
+              label='center'
+              variant='outlined'
+              fullWidth
+              value={rawCenter}
+              onChange={(event) => setRawCenter(event.target.value)}
+              onBlur={() => handleCenterScanCenterBlur()}
+              slotProps={{
+                input: {
+                  endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
+                },
+              }}
+            />
+            <TextField
+              label='span'
+              variant='outlined'
+              fullWidth
+              value={rawSpan}
+              onChange={(event) => setRawSpan(event.target.value)}
+              onBlur={() => handleCenterScanSpanBlur()}
+              slotProps={{
+                input: {
+                  endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
+                },
+              }}
+            />
+            <TextField
+              label='step'
+              variant='outlined'
+              fullWidth
+              value={rawStep}
+              onChange={(event) => setRawStep(event.target.value)}
+              onBlur={() => handleCenterScanStepBlur()}
+              slotProps={{
+                input: {
+                  endAdornment: <InputAdornment position='end'>{arg.unit}</InputAdornment>,
+                },
+              }}
+            />
+          </Stack>
+          <Stack direction='row' spacing={2}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={centerScan.randomize}
+                  onChange={handleCenterScanRandomizeChange}
+                />
+              }
+              label={'Randomize'}
+            />
+            <TextField
+              label='seed'
+              variant='outlined'
+              fullWidth
+              disabled={!centerScan.randomize}
+              value={rawSeed}
+              onChange={(event) => setRawSeed(event.target.value)}
+              onBlur={() => handleCenterScanSeedBlur()}
+            />
+          </Stack>
         </Stack>
-        <Stack direction='row' spacing={2}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={centerScan.randomize}
-                onChange={handleCenterScanRandomizeChange}
-              />
-            }
-            label={'Randomize'}
-          />
-          <TextField
-            label='seed'
-            variant='outlined'
-            fullWidth
-            disabled={!centerScan.randomize}
-            value={rawSeed}
-            onChange={(event) => setRawSeed(event.target.value)}
-            onBlur={() => handleCenterScanSeedBlur()}
-          />
-        </Stack>
-      </Stack>
+      </Tooltip>
     );
   };
 
@@ -544,7 +550,7 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
     };
 
     return (
-      <Box>
+      <Tooltip title={formatDict(arg.default.ExplicitScan)}>
         <TextField
           label='sequence'
           variant='outlined'
@@ -558,7 +564,7 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
             },
           }}
         />
-      </Box>
+      </Tooltip>
     );
   };
 
@@ -579,18 +585,10 @@ export function ScanArgInput({ experimentId, arg: arg_ }: ArgInputProps) {
               centered
               onChange={(_, value) => handleTabChange(value)}
             >
-              <Tooltip title={formatDict(arg.default.NoScan)}>
-                <Tab label='No' value='NoScan' />
-              </Tooltip>
-              <Tooltip title={formatDict(arg.default.RangeScan)}>
-                <Tab label='Range' value='RangeScan' />
-              </Tooltip>
-              <Tooltip title={formatDict(arg.default.CenterScan)}>
-                <Tab label='Center' value='CenterScan' />
-              </Tooltip>
-              <Tooltip title={formatDict(arg.default.ExplicitScan)}>
-                <Tab label='Explicit' value='ExplicitScan' />
-              </Tooltip>
+              <Tab label='No' value='NoScan' />
+              <Tab label='Range' value='RangeScan' />
+              <Tab label='Center' value='CenterScan' />
+              <Tab label='Explicit' value='ExplicitScan' />
             </TabList>
           </Box>
           <TabPanel value='NoScan'>
