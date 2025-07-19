@@ -5,7 +5,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Stack from '@mui/material/Stack';
 
-import Explorer from './components/Explorer/explorer';
+import Explorer from './components/Explorer/Explorer';
 
 export default function BuilderPage() {
   const [openExplorer, setOpenExplorer] = useState(false);
