@@ -362,6 +362,14 @@ export const experimentSlice = createSlice({
       }
       state.experiments[experimentIndex].args[argIndex] = arg;
     },
+    deleteExperiment: (state, action: PayloadAction<{ experimentId: string }>) => {
+      const { experimentId } = action.payload;
+      const experimentIndex = state.experiments.findIndex((e) => e.id === experimentId);
+      if (experimentIndex === -1) {
+        throw new Error(`Experiment ${experimentId} not found`);
+      }
+      state.experiments.splice(experimentIndex, 1);
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchExperiment.fulfilled, (state, action) => {

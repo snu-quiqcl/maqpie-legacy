@@ -55,6 +55,10 @@ export default function ExperimentPanel({ experiment }: ExperimentPanelProps) {
     dispatch(reloadExperiment(experiment));
   };
 
+  const handleDeleteClick = () => {
+    dispatch(experimentActions.deleteExperiment({ experimentId: experiment.id }));
+  };
+
   return (
     <Card id={experiment.id} variant='outlined'>
       <CardContent>
@@ -84,6 +88,7 @@ export default function ExperimentPanel({ experiment }: ExperimentPanelProps) {
             </Button>
             <Button
               variant='contained'
+              onClick={() => handleDeleteClick()}
             >
               Delete
             </Button>
