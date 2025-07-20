@@ -16,8 +16,8 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path='/' element={<div>Home Page</div>} />
-          <Route path='/builder' element={<BuilderPage />} />
-          <Route path='*' element={<h1>Not Found</h1>} />
+            <Route path='/builder' element={<BuilderPage />} />
+            <Route path='*' element={<h1>Not Found</h1>} />
           </Routes>
         </BrowserRouter>
       </LocalizationProvider>
