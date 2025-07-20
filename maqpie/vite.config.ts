@@ -14,6 +14,12 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ''),
         },
+        '/ws/': {
+          target: env.VITE_PROXY_WS_BASE_URL,
+          changeOrigin: true,
+          ws: true,
+          rewrite: (path) => path.replace(/^\/ws/, ''),
+        },
       },
     },
   }
