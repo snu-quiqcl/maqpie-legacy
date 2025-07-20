@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 
 import experimentReducer from './slices/experiment/experiment';
+import scheduleReducer from './slices/schedule/schedule';
 
 export const store = configureStore({
   reducer: {
     experiment: experimentReducer,
+    schedule: scheduleReducer,
   },
 });
 
