@@ -1,4 +1,4 @@
-import type { DateTime } from 'luxon';
+import { DateTime } from 'luxon';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import type { RootState } from '../..';
@@ -48,7 +48,7 @@ export const scheduleSlice = createSlice({
         status: rawRun.status,
         pipeline: rawRun.pipeline,
         priority: rawRun.priority,
-        due_date: rawRun.due_date,
+        due_date: rawRun.due_date && DateTime.fromSeconds(rawRun.due_date),
         args: rawRun.expid.arguments,
       }));
       state.runs = runs;
