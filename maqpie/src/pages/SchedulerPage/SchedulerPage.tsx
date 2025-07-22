@@ -1,11 +1,22 @@
-import type { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Stack from '@mui/material/Stack';
-import { DataGrid, type GridColDef, type GridRowsProp } from '@mui/x-data-grid';
+import {
+  DataGrid,
+  GridActionsCellItem,
+  type GridColDef,
+  type GridRowParams,
+  type GridRowsProp,
+} from '@mui/x-data-grid';
 
 import type { AppDispatch } from '../../store';
-import { RUN_STATUSES, scheduleActions, selectSchedule } from '../../store/slices/schedule/schedule';
+import {
+  deleteRun,
+  RUN_STATUSES,
+  scheduleActions,
+  selectSchedule,
+  terminateRun,
+} from '../../store/slices/schedule/schedule';
 import { formatDict } from '../../utils/utils';
 
 export default function SchedulerPage() {
@@ -49,7 +60,7 @@ export default function SchedulerPage() {
       field: 'due_date',
       headerName: 'Due Date',
       width: 200,
-      valueGetter: (value: DateTime) => value?.toJSDate(),
+      valueGetter: (value: string) => value && new Date(value),
     },
     {
       type: 'string',
@@ -58,7 +69,32 @@ export default function SchedulerPage() {
       width: 300,
       valueGetter: (value: object) => formatDict(value),
     },
+    {
+      type: 'actions',
+      field: 'actions',
+      width: 50,
+      getActions: (params: GridRowParams) => [
+        <GridActionsCellItem
+          label="Terminate"
+          showInMenu
+          onClick={() => handleTerminateClick(params.row.rid)}
+        />,
+        <GridActionsCellItem
+          label="Delete"
+          showInMenu
+          onClick={() => handleDeleteClick(params.row.rid)}
+        />,
+      ],
+    },
   ];
+
+  const handleTerminateClick = (rid: number) => {
+    dispatch(terminateRun({ rid }));
+  };
+
+  const handleDeleteClick = (rid: number) => {
+    dispatch(deleteRun({ rid }));
+  };
 
   useEffect(() => {
     const socket = new WebSocket('/ws/schedule/');

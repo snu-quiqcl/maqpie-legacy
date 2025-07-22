@@ -1,5 +1,6 @@
+import axios from 'axios';
 import { DateTime } from 'luxon';
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import type { RootState } from '../..';
 
@@ -23,7 +24,7 @@ export interface Run {
   status: RunStatus;
   pipeline: string;
   priority: number;
-  due_date: DateTime | null;
+  due_date: string | null;
   args: object;
 }
 
@@ -34,6 +35,30 @@ export interface ScheduleState {
 const initialState: ScheduleState = {
   runs: [],
 };
+
+export const terminateRun = createAsyncThunk(
+  'schedule/terminateRun',
+  async (payload: Pick<Run, 'rid'>) => {
+    const response = await axios.post('/api/experiment/terminate/', null, {
+      params: {
+        rid: payload.rid,
+      },
+    });
+    return response.data;
+  }
+);
+
+export const deleteRun = createAsyncThunk(
+  'schedule/deleteRun',
+  async (payload: Pick<Run, 'rid'>) => {
+    const response = await axios.post('/api/experiment/delete/', null, {
+      params: {
+        rid: payload.rid,
+      },
+    });
+    return response.data;
+  }
+);
 
 export const scheduleSlice = createSlice({
   name: 'schedule',
@@ -48,7 +73,7 @@ export const scheduleSlice = createSlice({
         status: rawRun.status,
         pipeline: rawRun.pipeline,
         priority: rawRun.priority,
-        due_date: rawRun.due_date && DateTime.fromSeconds(rawRun.due_date),
+        due_date: rawRun.due_date && DateTime.fromSeconds(rawRun.due_date).toISO(),
         args: rawRun.expid.arguments,
       }));
       state.runs = runs;
