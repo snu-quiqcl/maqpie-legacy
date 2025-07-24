@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 import type { RootState } from "../..";
 import { getTtlConfigs } from "../../../config/ttlConfig";
@@ -28,7 +28,29 @@ const initialState: TtlState = {
 export const ttlSlice = createSlice({
   name: 'ttl',
   initialState,
-  reducers: {},
+  reducers: {
+    updateTtls: (state, action: PayloadAction<{ modifications: any }>) => {
+      const { modifications } = action.payload;
+      Object.entries(modifications.probe).forEach(([device, value]) => {
+        const ttl = state.ttls.find((ttl) => ttl.device === device);
+        if (ttl) {
+          ttl.value = value as boolean;
+        }
+      });
+      Object.entries(modifications.override).forEach(([device, isOverride]) => {
+        const ttl = state.ttls.find((ttl) => ttl.device === device);
+        if (ttl) {
+          ttl.isOverride = isOverride as boolean;
+        }
+      });
+      Object.entries(modifications.level).forEach(([device, overrideValue]) => {
+        const ttl = state.ttls.find((ttl) => ttl.device === device);
+        if (ttl) {
+          ttl.overrideValue = overrideValue as boolean;
+        }
+      });
+    },
+  },
 });
 
 export const ttlActions = ttlSlice.actions;
