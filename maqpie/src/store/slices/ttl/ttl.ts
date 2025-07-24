@@ -1,4 +1,5 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import axios from 'axios';
+import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import type { RootState } from "../..";
 import { getTtlConfigs } from "../../../config/ttlConfig";
@@ -24,6 +25,32 @@ const initialState: TtlState = {
     overrideValue: null,
   })),
 };
+
+export const setIsOverride = createAsyncThunk(
+  'ttl/setIsOverride',
+  async (payload: Pick<Ttl, 'device' | 'isOverride'>) => {
+    const response = await axios.post('/api/ttl/override/', {
+      params: {
+        devices: [payload.device],
+        values: [payload.isOverride],
+      },
+    });
+    return response.data;
+  }
+);
+
+export const setOverrideValue = createAsyncThunk(
+  'ttl/setOverrideValue',
+  async (payload: Pick<Ttl, 'device' | 'overrideValue'>) => {
+    const response = await axios.post('/api/ttl/override/', {
+      params: {
+        devices: [payload.device],
+        values: [payload.overrideValue],
+      },
+    });
+    return response.data;
+  }
+);
 
 export const ttlSlice = createSlice({
   name: 'ttl',

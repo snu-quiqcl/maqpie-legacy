@@ -1,4 +1,5 @@
-import Button from '@mui/material/Button';
+import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import FormControl from '@mui/material/FormControl';
@@ -9,6 +10,8 @@ import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
 
+import type { AppDispatch } from '../../../../store';
+import { setIsOverride, setOverrideValue } from '../../../../store/slices/ttl/ttl';
 import type { Ttl } from '../../../../store/slices/ttl/ttl';
 
 type TtlPanelProps = {
@@ -16,6 +19,28 @@ type TtlPanelProps = {
 };
 
 export default function TtlPanel({ ttl }: TtlPanelProps) {
+  const dispatch = useDispatch<AppDispatch>();
+  const [isOverrideEnabled, setIsOverrideEnabled] = useState<boolean>(false);
+  const [overrideValueEnabled, setOverrideValueEnabled] = useState<boolean>(false);
+
+  useEffect(() => {
+    setIsOverrideEnabled(ttl.isOverride !== null);
+  }, [ttl.isOverride]);
+
+  useEffect(() => {
+    setOverrideValueEnabled(ttl.overrideValue !== null);
+  }, [ttl.overrideValue]);
+
+  const handleIsOverrideChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsOverrideEnabled(false);
+    dispatch(setIsOverride({ device: ttl.device, isOverride: event.target.checked }));
+  };
+
+  const handleOverrideValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setOverrideValueEnabled(false);
+    dispatch(setOverrideValue({ device: ttl.device, overrideValue: event.target.checked }));
+  };
+
   return (
     <Card>
       <CardContent>
@@ -37,7 +62,8 @@ export default function TtlPanel({ ttl }: TtlPanelProps) {
                   control={
                     <Switch
                       checked={ttl.isOverride ?? false}
-                      disabled={ttl.isOverride === null}
+                      disabled={!isOverrideEnabled}
+                      onChange={handleIsOverrideChange}
                     />}
                   label='Enable'
                 />
@@ -45,7 +71,8 @@ export default function TtlPanel({ ttl }: TtlPanelProps) {
                   control={
                     <Switch
                       checked={ttl.overrideValue ?? false}
-                      disabled={ttl.overrideValue === null}
+                      disabled={!overrideValueEnabled}
+                      onChange={handleOverrideValueChange}
                     />
                   }
                   label='Value'
