@@ -1,35 +1,30 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { ThemeProvider, createTheme } from '@mui/material';
+import CssBaseline from '@mui/material/CssBaseline';
+import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
-function App() {
-  const [count, setCount] = useState(0)
+import BuilderPage from './pages/BuilderPage/BuilderPage';
+import SchedulerPage from './pages/SchedulerPage/SchedulerPage';
+import TtlControllerPage from './pages/TtlControllerPage/TtlControllerPage';
+
+export default function App() {
+  const theme = createTheme();
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <LocalizationProvider dateAdapter={AdapterLuxon}>
+        <BrowserRouter>
+          <Routes>
+            <Route path='/' element={<div>Home Page</div>} />
+            <Route path='/builder' element={<BuilderPage />} />
+            <Route path='/scheduler' element={<SchedulerPage />} />
+            <Route path='/controller/ttl' element={<TtlControllerPage />} />
+            <Route path='*' element={<h1>Not Found</h1>} />
+          </Routes>
+        </BrowserRouter>
+      </LocalizationProvider>
+    </ThemeProvider>
+  );
 }
-
-export default App
